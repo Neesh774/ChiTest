@@ -113,6 +113,7 @@ const MenuItem = ({
 }) => {
   return (
     <UnstyledButton
+      my={4}
       onClick={() => setTab(tab)}
       sx={(theme) => ({
         display: "block",

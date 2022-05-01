@@ -10,6 +10,8 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse) 
         where: {
             id: parseInt(id as string)
         }
+    }).catch(error => {
+        console.log(error);
     })
     res.status(200).json(id);
 }

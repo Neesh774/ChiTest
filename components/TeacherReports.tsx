@@ -22,6 +22,7 @@ export default function TeacherReports() {
   const [students, setStudents] = useState<User[]>([]);
   const [selected, setSelected] = useState<User | undefined>(undefined);
   const [deleteModal, setDeleteModal] = useState(false);
+  const [deleteModalLoading, setDeleteModalLoading] = useState(false);
   const [loading, setLoading] = useState(true);
   useEffect(() => {
     fetch("/api/students/getStudents")
@@ -33,11 +34,13 @@ export default function TeacherReports() {
   }, [loading]);
 
   const deleteStudent = async () => {
-    setDeleteModal(false);
+    setDeleteModalLoading(true);
     setStudents(undefined);
-    setLoading(true);
     await fetch("/api/students/deleteStudent/" + selected.name);
+    setLoading(true);
     setSelected(undefined);
+    setDeleteModalLoading(false);
+    setDeleteModal(false);
   };
   return (
     <>
@@ -54,7 +57,11 @@ export default function TeacherReports() {
           <Button variant="outline" onClick={() => setDeleteModal(false)}>
             Cancel
           </Button>
-          <Button color="red" onClick={deleteStudent}>
+          <Button
+            color="red"
+            onClick={deleteStudent}
+            loading={deleteModalLoading}
+          >
             Send them to the void!
           </Button>
         </Group>
