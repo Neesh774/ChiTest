@@ -14,7 +14,7 @@ import {
 } from "@mantine/core";
 import React from "react";
 import { AlertCircle, Trash } from "tabler-icons-react";
-import { Question } from "../utils/types";
+import { Question } from "../../utils/types";
 import EditImages from "./EditImages";
 
 export default function EditQuestion({

@@ -18,7 +18,7 @@ import {
 } from "@mantine/core";
 import React, { useEffect, useState } from "react";
 import { Eye, EyeOff, Trash } from "tabler-icons-react";
-import { Question } from "../utils/types";
+import { Question } from "../../utils/types";
 import EditQuestion from "./EditQuestionDrawer";
 
 export default function TeacherQuestions() {
@@ -54,6 +54,7 @@ export default function TeacherQuestions() {
         title={<Title order={4}>Edit Question</Title>}
         padding="xl"
         size="xl"
+        position="right"
       >
         {" "}
         <EditQuestion
@@ -64,7 +65,10 @@ export default function TeacherQuestions() {
       </Drawer>
       <Container>
         <Group position="apart" mb="md">
-          <Title order={2}>Quiz Questions</Title>
+          <Group direction="column" spacing={0}>
+            <Title order={2}>Quiz Questions</Title>
+            <Text color="gray">Click on a question to edit it.</Text>
+          </Group>
           <Button
             variant="outline"
             onClick={createQuestion}

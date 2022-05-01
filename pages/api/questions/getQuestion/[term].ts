@@ -6,8 +6,11 @@ const prisma = new PrismaClient();
 
 export default async function handle(req: NextApiRequest, res: NextApiResponse) {
     const { term } = req.query;
-    const question = await prisma.quiz.findFirst({
+    let question: Question;
+    await prisma.quiz.findFirst({
         where: { term: term as string }
+    }).then(result => {
+        question = result as Question;
     })
-    res.status(200).json(question as Question);
+    res.status(200).json(question);
 }

@@ -15,7 +15,7 @@ import {
 } from "@mantine/core";
 import React, { useEffect, useState } from "react";
 import { Trash } from "tabler-icons-react";
-import { User } from "../utils/types";
+import { User } from "../../utils/types";
 import QuestionPopover from "./QuestionPopover";
 
 export default function TeacherReports() {

@@ -3,12 +3,12 @@ import { GetStaticProps } from "next";
 import { useEffect, useState } from "react";
 import SignIn from "../components/SignIn";
 import useSWR from "swr";
-import TeacherDashboard from "../components/TeacherDashboard";
+import TeacherDashboard from "../components/Teacher/TeacherDashboard";
 import { User } from "../utils/types";
 
 export default function Home() {
   const [loggedIn, setLoggedIn] = useState<User | "teacher" | undefined>(
-    "teacher"
+    undefined
   );
   const [showSignIn, setShowSignIn] = useState(false);
 
@@ -23,7 +23,7 @@ export default function Home() {
       <main>
         {loggedIn &&
           (loggedIn === "teacher" ? (
-            <TeacherDashboard />
+            <TeacherDashboard logOut={() => setLoggedIn(undefined)} />
           ) : (
             <div>{loggedIn.name}</div>
           ))}

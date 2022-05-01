@@ -16,11 +16,11 @@ import {
   useMantineTheme,
 } from "@mantine/core";
 import React, { ReactNode, useState } from "react";
-import ToggleTheme from "./ToggleTheme";
+import ToggleTheme from "../ToggleTheme";
 import { Report, ClipboardList } from "tabler-icons-react";
 import TeacherReports from "./TeacherReports";
 import TeacherQuestions from "./TeacherQuestions";
-export default function TeacherDashboard() {
+export default function TeacherDashboard({ logOut }: { logOut: () => void }) {
   const [tab, setTab] = useState<"stats" | "quiz">("stats");
   const theme = useMantineTheme();
   const [opened, setOpened] = useState(false);
@@ -86,7 +86,12 @@ export default function TeacherDashboard() {
 
               <Title>ChiTest</Title>
             </div>
-            <ToggleTheme />
+            <Group>
+              <ToggleTheme />
+              <Button size="xs" variant="light" onClick={logOut}>
+                Sign Out
+              </Button>
+            </Group>
           </div>
         </Header>
       }

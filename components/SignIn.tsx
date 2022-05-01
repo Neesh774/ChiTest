@@ -21,6 +21,7 @@ export default function SignIn({
   setUser: (value: User | "teacher") => void;
 }) {
   const [username, setUsername] = useState("");
+  const [teacherUsername, setTeacherUsername] = useState("");
   const [password, setPassword] = useState("");
   const [invalid, setInvalid] = useState<string>();
   const [type, setType] = useState<"teacher" | "student">();
@@ -43,7 +44,7 @@ export default function SignIn({
   const handleSubmit = async () => {
     setLoading(true);
     if (type === "teacher") {
-      if (username !== "mcgee1" || password !== "mcgee1") {
+      if (teacherUsername !== "mcgee1" || password !== "mcgee1") {
         setInvalid("Invalid username or password");
         return;
       }
@@ -90,8 +91,12 @@ export default function SignIn({
               label="Name"
               placeholder="Your name"
               required
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              value={type === "teacher" ? teacherUsername : username}
+              onChange={(e) => {
+                type === "teacher"
+                  ? setTeacherUsername(e.target.value)
+                  : setUsername(e.target.value);
+              }}
             />
             {type === "teacher" && (
               <TextInput
