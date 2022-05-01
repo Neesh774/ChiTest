@@ -8,7 +8,7 @@ import { User } from "../utils/types";
 
 export default function Home() {
   const [loggedIn, setLoggedIn] = useState<User | "teacher" | undefined>(
-    undefined
+    "teacher"
   );
   const [showSignIn, setShowSignIn] = useState(false);
 

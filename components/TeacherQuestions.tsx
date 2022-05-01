@@ -8,12 +8,23 @@ import {
   Text,
   Button,
   Anchor,
+  Table,
+  ThemeIcon,
+  Drawer,
+  Paper,
+  LoadingOverlay,
+  ActionIcon,
+  TextInput,
 } from "@mantine/core";
 import React, { useEffect, useState } from "react";
+import { Eye, EyeOff, Trash } from "tabler-icons-react";
 import { Question } from "../utils/types";
+import EditQuestion from "./EditQuestionDrawer";
 
 export default function TeacherQuestions() {
   const [questions, setQuestions] = useState<Question[]>([]);
+  const [selected, setSelected] = useState<Question | undefined>(undefined);
+  const [createLoading, setCreateLoading] = useState(false);
   const [loading, setLoading] = useState(true);
   useEffect(() => {
     fetch("/api/questions/getQuestions")
@@ -22,57 +33,89 @@ export default function TeacherQuestions() {
         setQuestions(data);
         setLoading(false);
       });
-  });
+  }, [loading]);
+
+  const createQuestion = async () => {
+    setCreateLoading(true);
+    await fetch("/api/questions/createQuestion")
+      .then((res) => res.json())
+      .then((data) => {
+        setSelected(data);
+        setCreateLoading(false);
+        setLoading(true);
+      });
+  };
+
   return (
-    <Container>
-      <Group position="apart" mb="md">
-        <Title order={2}>Quiz Questions</Title>
-        <Button variant="outline">Add Question</Button>
-      </Group>
-      <Divider mb="md" />
-      <Group position="center" grow>
-        {loading ? (
-          <Loader />
-        ) : (
-          <Accordion>
-            {questions.map((question, i) => (
-              <Accordion.Item
-                key={i}
-                mx="xl"
-                label={
-                  <AccordionLabel
-                    label={question.term}
-                    description={question.hint}
-                  />
-                }
-              >
-                {question.images.length > 0 ? (
-                  <Group direction="column" spacing={0}>
-                    {question.images.map((image, i) => {
-                      return (
-                        <Anchor
-                          py={0}
-                          my={0}
-                          key={i}
-                          href={image}
-                          target="_blank"
+    <>
+      <Drawer
+        opened={!!selected}
+        onClose={() => setSelected(undefined)}
+        title={<Title order={4}>Edit Question</Title>}
+        padding="xl"
+        size="xl"
+      >
+        {" "}
+        <EditQuestion
+          selected={selected}
+          setSelected={setSelected}
+          setTableLoading={setLoading}
+        />
+      </Drawer>
+      <Container>
+        <Group position="apart" mb="md">
+          <Title order={2}>Quiz Questions</Title>
+          <Button
+            variant="outline"
+            onClick={createQuestion}
+            loading={createLoading}
+          >
+            Add Question
+          </Button>
+        </Group>
+        <Divider mb="md" />
+        <Group position="center" grow>
+          {loading ? (
+            <Loader />
+          ) : (
+            <Table>
+              <thead>
+                <tr>
+                  <th>Term</th>
+                  <th>Hint</th>
+                  <th>Images</th>
+                  <th>Show</th>
+                </tr>
+              </thead>
+              <tbody>
+                {questions.map((question, i) => {
+                  return (
+                    <tr
+                      onClick={() => setSelected(question)}
+                      key={i}
+                      style={{ cursor: "pointer" }}
+                    >
+                      <td>{question.term}</td>
+                      <td>{question.hint}</td>
+                      <td>{question.images.length}</td>
+                      <td>
+                        <ThemeIcon
+                          style={{ backgroundColor: "transparent" }}
+                          variant="light"
+                          color="gray"
                         >
-                          Image {i + 1}
-                        </Anchor>
-                      );
-                    })}
-                  </Group>
-                ) : (
-                  <Text color="gray" size="sm">
-                    No Images
-                  </Text>
-                )}
-              </Accordion.Item>
-            ))}
-          </Accordion>
-        )}
-      </Group>
-    </Container>
+                          {question.show ? <Eye /> : <EyeOff />}
+                        </ThemeIcon>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </Table>
+          )}
+        </Group>
+      </Container>
+    </>
   );
 }
 

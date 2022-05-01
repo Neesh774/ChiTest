@@ -16,7 +16,7 @@ model user {
 
 model quiz {
   id     Int      @id @default(autoincrement())
-  term   String?
+  term   String?  @unique
   images Json?    @default("[]") @db.Json
   sound  String?  @default(dbgenerated("'[]'::json"))
   show   Boolean? @default(true)

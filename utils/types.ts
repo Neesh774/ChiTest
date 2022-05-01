@@ -11,6 +11,7 @@ export type Question = {
     hint: string;
     images: string[];
     sound: string;
+    show: boolean;
 }
 
 export type QuestionResponse = {

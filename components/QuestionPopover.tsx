@@ -11,7 +11,7 @@ export default function QuestionPopover({
   const [question, setQuestion] = useState<Question>();
   const [loading, setLoading] = useState(true);
   useEffect(() => {
-    fetch(`/api/questions/${questionTerm}`)
+    fetch(`/api/questions/getQuestion/${questionTerm}`)
       .then((res) => res.json())
       .then((data) => {
         setQuestion(data);
