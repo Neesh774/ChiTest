@@ -1,0 +1,24 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model user {
+  id        Int     @id @default(autoincrement())
+  name      String? @unique
+  date      String?
+  responses Json?   @default("[]") @db.Json
+}
+
+model quiz {
+  id     Int      @id @default(autoincrement())
+  term   String?
+  images Json?    @default("[]") @db.Json
+  sound  String?  @default(dbgenerated("'[]'::json"))
+  show   Boolean? @default(true)
+  hint   String?
+}
