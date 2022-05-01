@@ -11,8 +11,9 @@ import {
   Alert,
   Modal,
   Text,
+  MultiSelect,
 } from "@mantine/core";
-import React from "react";
+import React, { useEffect } from "react";
 import { AlertCircle, Trash } from "tabler-icons-react";
 import { Question } from "../../utils/types";
 import EditImages from "./EditImages";
@@ -31,8 +32,20 @@ export default function EditQuestion({
   const [hint, setHint] = React.useState(selected?.hint);
   const [show, setShow] = React.useState(selected?.show);
   const [images, setImages] = React.useState(selected?.images);
+  const [selectedCategories, setSelectedCategories] = React.useState<string[]>(
+    selected?.categories
+  );
+  const [categories, setCategories] = React.useState([]);
   const [error, setError] = React.useState("");
   const [deleteModal, setDeleteModal] = React.useState(false);
+
+  useEffect(() => {
+    fetch("/api/questions/getCategories")
+      .then((res) => res.json())
+      .then((data) => {
+        setCategories(data);
+      });
+  }, []);
   const deleteQuestion = () => {
     setLoading(true);
     setDeleteModal(false);
@@ -66,6 +79,7 @@ export default function EditQuestion({
         hint,
         images,
         show,
+        categories: selectedCategories,
       }),
     }).then((res) => {
       if (res.status === 200) {
@@ -128,6 +142,21 @@ export default function EditQuestion({
             onChange={(e) => setShow(e.currentTarget.checked)}
           />
           <EditImages images={images} setImages={setImages} />
+          <MultiSelect
+            label="Categories"
+            data={categories}
+            placeholder="Set question categories"
+            creatable
+            searchable
+            getCreateLabel={(query) => `+ Create ${query}`}
+            onCreate={(query) => {
+              setCategories([...categories, query]);
+            }}
+            onChange={(value) => {
+              setSelectedCategories(value);
+            }}
+            value={selectedCategories}
+          />
         </Group>
         <Group my="lg" position="right">
           <Button onClick={saveQuestion}>Save</Button>

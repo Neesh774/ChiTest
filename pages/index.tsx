@@ -5,6 +5,7 @@ import SignIn from "../components/SignIn";
 import useSWR from "swr";
 import TeacherDashboard from "../components/Teacher/TeacherDashboard";
 import { User } from "../utils/types";
+import StudentDashboard from "../components/Student/StudentDashboard";
 
 export default function Home() {
   const [loggedIn, setLoggedIn] = useState<User | "teacher" | undefined>(
@@ -25,7 +26,7 @@ export default function Home() {
           (loggedIn === "teacher" ? (
             <TeacherDashboard logOut={() => setLoggedIn(undefined)} />
           ) : (
-            <div>{loggedIn.name}</div>
+            <StudentDashboard student={loggedIn} />
           ))}
       </main>
       <SignIn

@@ -15,10 +15,11 @@ model user {
 }
 
 model quiz {
-  id     Int      @id @default(autoincrement())
-  term   String?  @unique
-  images Json?    @default("[]") @db.Json
-  sound  String?  @default(dbgenerated("'[]'::json"))
-  show   Boolean? @default(true)
-  hint   String?
+  id         Int      @id @default(autoincrement())
+  term       String?  @unique
+  images     Json?    @default("[]") @db.Json
+  sound      String?  @default(dbgenerated("'[]'::json"))
+  show       Boolean? @default(true)
+  hint       String?
+  categories Json?    @default("[]") @db.Json
 }

@@ -12,6 +12,7 @@ export type Question = {
     images: string[];
     sound: string;
     show: boolean;
+    categories: [];
 }
 
 export type QuestionResponse = {

@@ -67,7 +67,13 @@ export default function SignIn({
   };
 
   return (
-    <Modal opened={opened} onClose={() => setOpened(false)} title="Sign In">
+    <Modal
+      opened={opened}
+      onClose={() => setOpened(false)}
+      title="Sign In"
+      closeOnClickOutside={false}
+      closeOnEscape={false}
+    >
       <LoadingOverlay visible={loading} />
       <Stepper active={step} breakpoint="sm">
         <Stepper.Step label="User">

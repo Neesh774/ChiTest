@@ -12,7 +12,8 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse) 
             term: "New question " + id,
             hint: "???",
             images: [],
-            show: true
+            show: true,
+            categories: "",
         }
     }).then((newQuestion) => {
         question = newQuestion as Question;

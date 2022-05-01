@@ -17,7 +17,7 @@ import {
   TextInput,
 } from "@mantine/core";
 import React, { useEffect, useState } from "react";
-import { Eye, EyeOff, Trash } from "tabler-icons-react";
+import { AlertCircle, Eye, EyeOff, Trash } from "tabler-icons-react";
 import { Question } from "../../utils/types";
 import EditQuestion from "./EditQuestionDrawer";
 
@@ -88,6 +88,7 @@ export default function TeacherQuestions() {
                   <th>Term</th>
                   <th>Hint</th>
                   <th>Images</th>
+                  <th>Categories</th>
                   <th>Show</th>
                 </tr>
               </thead>
@@ -101,7 +102,27 @@ export default function TeacherQuestions() {
                     >
                       <td>{question.term}</td>
                       <td>{question.hint}</td>
-                      <td>{question.images.length}</td>
+                      <td
+                        style={{
+                          color: question.images.length == 0 ? "#E03131" : "",
+                        }}
+                      >
+                        {question.images.length == 0 ? (
+                          <Text size="sm">No Images</Text>
+                        ) : (
+                          <Text>{question.images.length}</Text>
+                        )}
+                      </td>
+                      <td>
+                        {question.categories.map((category, i) => {
+                          return (
+                            <Text key={i}>
+                              {category}
+                              {i !== question.categories.length - 1 && ", "}
+                            </Text>
+                          );
+                        })}
+                      </td>
                       <td>
                         <ThemeIcon
                           style={{ backgroundColor: "transparent" }}
