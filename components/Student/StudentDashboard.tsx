@@ -16,18 +16,21 @@ import {
   Select,
   Radio,
   RadioGroup,
+  Center,
 } from "@mantine/core";
 import React, { useEffect, useState } from "react";
 import { ArrowRight } from "tabler-icons-react";
-import { Question, User } from "../../utils/types";
+import { Question, QuestionResponse, User, Session } from "../../utils/types";
 import ToggleTheme from "../ToggleTheme";
+import ImageDisplay from "./ImageDisplay";
 
 export default function StudentDashboard({ student }: { student: User }) {
   const [questions, setQuestions] = useState<Question[]>([]);
-  const [current, setCurrent] = useState<number>(0);
+  const [session, setSession] = useState<Session>();
   const [allCategories, setAllCategories] = useState<string[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>();
   const [selectedAnswer, setSelectedAnswer] = useState<string>();
+  const [correct, setCorrect] = useState<boolean>();
   const [loading, setLoading] = useState(true);
   useEffect(() => {
     fetch("/api/questions/getQuestion/quiz")
@@ -35,9 +38,59 @@ export default function StudentDashboard({ student }: { student: User }) {
       .then(({ questions, categories }) => {
         setQuestions(questions);
         setAllCategories(categories);
+        setSession({
+          responses: questions.map((question: Question) => ({
+            question: question.term,
+            attempts: 0,
+          })),
+          questionPool: randomizeQuestions(questions),
+        });
         setLoading(false);
       });
   }, [student]);
+
+  const checkAnswer = () => {
+    const correct = session.questionPool[0].term === selectedAnswer;
+    if (correct) {
+      setCorrect(true);
+    } else {
+      setCorrect(false);
+    }
+  };
+
+  const nextQuestion = () => {
+    let newSession: Session;
+    const curResponse = session.responses.find((response: QuestionResponse) => {
+      return response.question === session.questionPool[0].term;
+    });
+    const curQuestion = session.questionPool[0];
+    if (correct) {
+      newSession = {
+        responses: [
+          ...session.responses,
+          {
+            question: session.questionPool[0].term,
+            attempts: curResponse.attempts + 1,
+          },
+        ],
+        questionPool: session.questionPool.slice(1),
+      };
+    } else {
+      newSession = {
+        responses: [
+          ...session.responses,
+          {
+            question: session.questionPool[0].term,
+            attempts: curResponse.attempts + 1,
+          },
+        ],
+        questionPool: session.questionPool.slice(1).concat(curQuestion),
+      };
+    }
+    setCorrect(undefined);
+    setSelectedAnswer("");
+    setSession(newSession);
+  };
   return (
     <AppShell
       padding="md"
@@ -67,12 +120,18 @@ export default function StudentDashboard({ student }: { student: User }) {
                   clearable
                   onChange={(value) => {
                     setSelectedCategory(value);
-                    setSelectedAnswer(undefined);
+                    setSelectedAnswer("");
                   }}
                 />
               </Group>
             </Group>
-            <ToggleTheme />
+            <Group>
+              <Button color="red" variant="outline">
+                Reset
+              </Button>
+              <Button variant="gradient">Save</Button>
+              <ToggleTheme />
+            </Group>
           </div>
         </Header>
       }
@@ -90,6 +149,13 @@ export default function StudentDashboard({ student }: { student: User }) {
                 value={selectedAnswer}
                 onChange={setSelectedAnswer}
                 size="sm"
+                color={
+                  correct === true
+                    ? "green"
+                    : correct === false
+                    ? "red"
+                    : "gray"
+                }
               >
                 {questions.flatMap((question, index) => {
                   if (
@@ -98,7 +164,14 @@ export default function StudentDashboard({ student }: { student: User }) {
                   ) {
                     return null;
                   }
-                  return <Radio label={question.term} value={question.term} />;
+                  return (
+                    <Radio
+                      disabled={correct != null}
+                      key={index}
+                      label={question.term}
+                      value={question.term}
+                    />
+                  );
                 })}
               </RadioGroup>
             </ScrollArea>
@@ -106,16 +179,46 @@ export default function StudentDashboard({ student }: { student: User }) {
         </Aside>
       }
       footer={
-        <Footer height={120}>
-          <Group position="center" align="center" py="sm">
-            <Button>
-              Next <ArrowRight size={16} />{" "}
-            </Button>
+        <Footer height={70}>
+          <Group position="center" align="center" py="sm" px="lg">
+            {correct == null ? (
+              <Button
+                variant={selectedAnswer ? "gradient" : "default"}
+                gradient={{ from: "teal", to: "lime", deg: 105 }}
+                disabled={!selectedAnswer}
+                onClick={checkAnswer}
+              >
+                Check
+              </Button>
+            ) : session.questionPool.length > 1 ? (
+              <Button onClick={nextQuestion}>
+                Next <ArrowRight />
+              </Button>
+            ) : (
+              <Button>
+                Complete <ArrowRight />
+              </Button>
+            )}
           </Group>
         </Footer>
       }
     >
-      <div></div>
+      {loading ? (
+        <Center>
+          <Loader />
+        </Center>
+      ) : (
+        <ImageDisplay session={session} />
+      )}
     </AppShell>
   );
 }
+
+const randomizeQuestions = (questions: Question[]) => {
+  const shuffled = questions.slice();
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+};

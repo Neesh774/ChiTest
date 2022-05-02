@@ -19,3 +19,7 @@ export type QuestionResponse = {
     question: string;
     attempts: number;
 }
+export type Session = {
+    responses: QuestionResponse[];
+    questionPool: Question[];
+};
