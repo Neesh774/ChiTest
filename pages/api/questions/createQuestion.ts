@@ -13,7 +13,7 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse) 
             hint: "???",
             images: [],
             show: true,
-            categories: "",
+            categories: [],
         }
     }).then((newQuestion) => {
         question = newQuestion as Question;

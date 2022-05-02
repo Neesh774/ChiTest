@@ -15,10 +15,12 @@ export default function SignIn({
   opened,
   setOpened,
   setUser,
+  loggedIn,
 }: {
   opened: boolean;
   setOpened: (value: boolean) => void;
   setUser: (value: User | "teacher") => void;
+  loggedIn: boolean;
 }) {
   const [username, setUsername] = useState("");
   const [teacherUsername, setTeacherUsername] = useState("");
@@ -70,9 +72,10 @@ export default function SignIn({
     <Modal
       opened={opened}
       onClose={() => setOpened(false)}
-      title="Sign In"
+      title={<Title order={4}>Sign In to ChiTest</Title>}
       closeOnClickOutside={false}
       closeOnEscape={false}
+      withCloseButton={loggedIn}
     >
       <LoadingOverlay visible={loading} />
       <Stepper active={step} breakpoint="sm">

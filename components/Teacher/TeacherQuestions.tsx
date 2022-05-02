@@ -114,14 +114,18 @@ export default function TeacherQuestions() {
                         )}
                       </td>
                       <td>
-                        {question.categories.map((category, i) => {
-                          return (
-                            <Text key={i}>
-                              {category}
-                              {i !== question.categories.length - 1 && ", "}
-                            </Text>
-                          );
-                        })}
+                        {question.categories ? (
+                          question.categories.map((category, i) => {
+                            return (
+                              <Text key={i}>
+                                {category}
+                                {i !== question.categories.length - 1 && ", "}
+                              </Text>
+                            );
+                          })
+                        ) : (
+                          <Text>No Categories</Text>
+                        )}
                       </td>
                       <td>
                         <ThemeIcon

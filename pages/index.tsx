@@ -33,6 +33,7 @@ export default function Home() {
         opened={showSignIn}
         setOpened={setShowSignIn}
         setUser={setLoggedIn}
+        loggedIn={!!loggedIn}
       />
     </>
   );
