@@ -8,6 +8,9 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse) 
     const questions = await prisma.quiz.findMany({
         where: {
             show: true,
+            images: {
+                not: []
+            }
         }
     })
     const categories = await prisma.quiz.findMany({

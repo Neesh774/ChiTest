@@ -60,24 +60,14 @@ export default function StudentDashboard({ student }: { student: User }) {
         });
         setLoading(false);
       });
-  }, []);
-
-  useEffect(() => {
-    if (window != null) {
+    if (window) {
       window.addEventListener("beforeunload", alertUser);
-      window.addEventListener("unload", (ev: Event) =>
-        handleClose(ev, session)
-      );
 
       return () => {
         window.removeEventListener("beforeunload", alertUser);
-        window.removeEventListener("unload", (ev: Event) =>
-          handleClose(ev, session)
-        );
       };
     }
-  }, [session]);
-
+  }, []);
   const checkAnswer = () => {
     const response = session.questionPool[0].term === selectedAnswer;
     setCorrect({ first: correct.first == null && response, correct: response });
@@ -134,7 +124,7 @@ export default function StudentDashboard({ student }: { student: User }) {
       return response.question === session.questionPool[0].term;
     });
     const curQuestion = session.questionPool[0];
-    if (correct) {
+    if (correct.first) {
       newSession = {
         ...session,
         responses: [
@@ -282,15 +272,4 @@ const randomizeQuestions = (questions: Question[]) => {
 const alertUser = (event: BeforeUnloadEvent) => {
   event.preventDefault();
   event.returnValue = "You have unsaved work.";
-};
-
-const handleClose = (event: Event, session: Session) => {
-  localStorage.setItem(
-    "unsavedSession",
-    JSON.stringify({
-      responses: session.responses,
-      focus: session.focus,
-      questionPool: session.questionPool,
-    })
-  );
 };

@@ -5,6 +5,7 @@ import {
   Container,
   Group,
   Image,
+  Loader,
   Paper,
 } from "@mantine/core";
 import React, { useEffect } from "react";
@@ -14,11 +15,10 @@ import { Question, Session } from "../../utils/types";
 export default function ImageDisplay({ session }: { session: Session }) {
   const [images, setImages] = React.useState<string[]>([]);
   const [curImage, setCurImage] = React.useState<number>(0);
-  const { questionPool } = session;
 
   useEffect(() => {
-    setImages(randomizeImages(questionPool[0]));
-  }, [questionPool]);
+    setImages(randomizeImages(session.questionPool[0]));
+  }, [session.questionPool]);
 
   const previousImage = () => {
     if (curImage > 0) {
@@ -34,7 +34,7 @@ export default function ImageDisplay({ session }: { session: Session }) {
 
   return (
     <Center sx={{ display: "flex", flexDirection: "column" }}>
-      {images.length > 0 && (
+      {images.length > 0 ? (
         <Image
           sx={{ objectFit: "scale-down" }}
           height={530}
@@ -42,6 +42,10 @@ export default function ImageDisplay({ session }: { session: Session }) {
           radius="md"
           src={images[curImage]}
         />
+      ) : (
+        <Center>
+          <Loader />
+        </Center>
       )}
       <Group mt="md">
         <ActionIcon onClick={previousImage} disabled={curImage === 0}>
