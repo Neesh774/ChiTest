@@ -5,6 +5,7 @@ import {
   ColorSchemeProvider,
   ColorScheme,
 } from "@mantine/core";
+import { NotificationsProvider } from "@mantine/notifications";
 function MyApp({ Component, pageProps }) {
   const [colorScheme, setColorScheme] = useState<ColorScheme>("light");
   const toggleColorScheme = (value?: ColorScheme) =>
@@ -20,7 +21,9 @@ function MyApp({ Component, pageProps }) {
         withGlobalStyles
         withNormalizeCSS
       >
-        <Component {...pageProps} />
+        <NotificationsProvider>
+          <Component {...pageProps} />
+        </NotificationsProvider>
       </MantineProvider>
     </ColorSchemeProvider>
   );

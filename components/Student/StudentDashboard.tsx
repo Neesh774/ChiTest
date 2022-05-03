@@ -19,42 +19,112 @@ import {
   Center,
 } from "@mantine/core";
 import React, { useEffect, useState } from "react";
-import { ArrowRight } from "tabler-icons-react";
+import { ArrowRight, Check, X } from "tabler-icons-react";
 import { Question, QuestionResponse, User, Session } from "../../utils/types";
 import ToggleTheme from "../ToggleTheme";
 import ImageDisplay from "./ImageDisplay";
+import { showNotification } from "@mantine/notifications";
 
 export default function StudentDashboard({ student }: { student: User }) {
-  const [questions, setQuestions] = useState<Question[]>([]);
-  const [session, setSession] = useState<Session>();
-  const [allCategories, setAllCategories] = useState<string[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<string>();
+  const [session, setSession] = useState<Session>({
+    responses: [],
+    questionPool: [],
+    questions: [],
+    focus: "",
+    categories: [],
+    answers: [],
+  });
   const [selectedAnswer, setSelectedAnswer] = useState<string>();
-  const [correct, setCorrect] = useState<boolean>();
+  const [correct, setCorrect] = useState<{
+    first: boolean;
+    correct: boolean;
+  }>({
+    first: null,
+    correct: null,
+  });
   const [loading, setLoading] = useState(true);
   useEffect(() => {
     fetch("/api/questions/getQuestion/quiz")
       .then((res) => res.json())
       .then(({ questions, categories }) => {
-        setQuestions(questions);
-        setAllCategories(categories);
         setSession({
           responses: questions.map((question: Question) => ({
             question: question.term,
             attempts: 0,
           })),
           questionPool: randomizeQuestions(questions),
+          questions: questions,
+          categories,
+          focus: "",
+          answers: questions.map((question: Question) => question.term),
         });
         setLoading(false);
       });
-  }, [student]);
+  }, []);
+
+  useEffect(() => {
+    if (window != null) {
+      window.addEventListener("beforeunload", alertUser);
+      window.addEventListener("unload", (ev: Event) =>
+        handleClose(ev, session)
+      );
+
+      return () => {
+        window.removeEventListener("beforeunload", alertUser);
+        window.removeEventListener("unload", (ev: Event) =>
+          handleClose(ev, session)
+        );
+      };
+    }
+  }, [session]);
 
   const checkAnswer = () => {
-    const correct = session.questionPool[0].term === selectedAnswer;
-    if (correct) {
-      setCorrect(true);
+    const response = session.questionPool[0].term === selectedAnswer;
+    setCorrect({ first: correct.first == null && response, correct: response });
+    if (response) {
+      showNotification({
+        message: "You got it right, great work!",
+        color: "green",
+        icon: <Check />,
+      });
     } else {
-      setCorrect(false);
+      showNotification({
+        message: (
+          <Text>
+            Hmm... try that again. Here&apos;s a hint:
+            <br />
+            <b>{session.questionPool[0].hint}</b>
+          </Text>
+        ),
+        color: "red",
+        icon: <X />,
+      });
+    }
+  };
+
+  const changeFocus = (focus: string) => {
+    if (focus === null) {
+      setSession({
+        ...session,
+        focus: "",
+        questionPool: randomizeQuestions(session.questions),
+        answers: session.questions.map((question: Question) => question.term),
+      });
+    } else {
+      const newPool = session.questions.flatMap((question) => {
+        if (!question.categories.includes(focus as never)) {
+          return [];
+        }
+        return question;
+      });
+      setSession({
+        ...session,
+        focus,
+        questionPool: newPool,
+        answers: newPool.map((question: Question) => question.term),
+      });
+      setSelectedAnswer("");
+      setCorrect({ ...correct, correct: null });
     }
   };
 
@@ -66,6 +136,7 @@ export default function StudentDashboard({ student }: { student: User }) {
     const curQuestion = session.questionPool[0];
     if (correct) {
       newSession = {
+        ...session,
         responses: [
           ...session.responses,
           {
@@ -77,6 +148,7 @@ export default function StudentDashboard({ student }: { student: User }) {
       };
     } else {
       newSession = {
+        ...session,
         responses: [
           ...session.responses,
           {
@@ -87,7 +159,7 @@ export default function StudentDashboard({ student }: { student: User }) {
         questionPool: session.questionPool.slice(1).concat(curQuestion),
       };
     }
-    setCorrect(undefined);
+    setCorrect({ first: null, correct: null });
     setSelectedAnswer("");
     setSession(newSession);
   };
@@ -114,14 +186,11 @@ export default function StudentDashboard({ student }: { student: User }) {
               </Group>
               <Group>
                 <Select
-                  value={selectedCategory}
-                  data={allCategories}
+                  value={session.focus}
+                  data={session.categories}
                   placeholder="Focus on a category"
                   clearable
-                  onChange={(value) => {
-                    setSelectedCategory(value);
-                    setSelectedAnswer("");
-                  }}
+                  onChange={changeFocus}
                 />
               </Group>
             </Group>
@@ -149,30 +218,15 @@ export default function StudentDashboard({ student }: { student: User }) {
                 value={selectedAnswer}
                 onChange={setSelectedAnswer}
                 size="sm"
-                color={
-                  correct === true
-                    ? "green"
-                    : correct === false
-                    ? "red"
-                    : "gray"
-                }
               >
-                {questions.flatMap((question, index) => {
-                  if (
-                    selectedCategory &&
-                    !question.categories.includes(selectedCategory as never)
-                  ) {
-                    return null;
-                  }
-                  return (
-                    <Radio
-                      disabled={correct != null}
-                      key={index}
-                      label={question.term}
-                      value={question.term}
-                    />
-                  );
-                })}
+                {session.answers.map((term, index) => (
+                  <Radio
+                    key={index}
+                    disabled={correct.correct == true}
+                    label={term}
+                    value={term}
+                  />
+                ))}
               </RadioGroup>
             </ScrollArea>
           )}
@@ -181,7 +235,7 @@ export default function StudentDashboard({ student }: { student: User }) {
       footer={
         <Footer height={70}>
           <Group position="center" align="center" py="sm" px="lg">
-            {correct == null ? (
+            {!correct.correct && (
               <Button
                 variant={selectedAnswer ? "gradient" : "default"}
                 gradient={{ from: "teal", to: "lime", deg: 105 }}
@@ -190,15 +244,17 @@ export default function StudentDashboard({ student }: { student: User }) {
               >
                 Check
               </Button>
-            ) : session.questionPool.length > 1 ? (
-              <Button onClick={nextQuestion}>
-                Next <ArrowRight />
-              </Button>
-            ) : (
-              <Button>
-                Complete <ArrowRight />
-              </Button>
             )}
+            {correct.correct != null &&
+              (session.questionPool.length > 1 ? (
+                <Button onClick={nextQuestion}>
+                  Next <ArrowRight />
+                </Button>
+              ) : (
+                <Button>
+                  Complete <ArrowRight />
+                </Button>
+              ))}
           </Group>
         </Footer>
       }
@@ -221,4 +277,20 @@ const randomizeQuestions = (questions: Question[]) => {
     [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
   }
   return shuffled;
+};
+
+const alertUser = (event: BeforeUnloadEvent) => {
+  event.preventDefault();
+  event.returnValue = "You have unsaved work.";
+};
+
+const handleClose = (event: Event, session: Session) => {
+  localStorage.setItem(
+    "unsavedSession",
+    JSON.stringify({
+      responses: session.responses,
+      focus: session.focus,
+      questionPool: session.questionPool,
+    })
+  );
 };

@@ -22,4 +22,8 @@ export type QuestionResponse = {
 export type Session = {
     responses: QuestionResponse[];
     questionPool: Question[];
+    questions: Question[],
+    categories: string[]
+    focus: string
+    answers: string[]
 };

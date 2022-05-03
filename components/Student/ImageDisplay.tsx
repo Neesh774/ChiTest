@@ -34,13 +34,15 @@ export default function ImageDisplay({ session }: { session: Session }) {
 
   return (
     <Center sx={{ display: "flex", flexDirection: "column" }}>
-      <Image
-        sx={{ objectFit: "scale-down" }}
-        height={530}
-        alt="Question"
-        radius="md"
-        src={images[curImage]}
-      />
+      {images.length > 0 && (
+        <Image
+          sx={{ objectFit: "scale-down" }}
+          height={530}
+          alt="Question"
+          radius="md"
+          src={images[curImage]}
+        />
+      )}
       <Group mt="md">
         <ActionIcon onClick={previousImage} disabled={curImage === 0}>
           <ArrowLeft />
@@ -57,12 +59,10 @@ export default function ImageDisplay({ session }: { session: Session }) {
 }
 
 const randomizeImages = (question: Question) => {
-  const images = question.images;
-  const randomImages = [];
-  while (images.length > 0) {
-    const index = Math.floor(Math.random() * images.length);
-    randomImages.push(images[index]);
-    images.splice(index, 1);
+  const images = [...question.images];
+  for (let i = images.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [images[i], images[j]] = [images[j], images[i]];
   }
-  return randomImages;
+  return images;
 };
