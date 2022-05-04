@@ -15,8 +15,9 @@ import {
 } from "@mantine/core";
 import React, { useEffect, useState } from "react";
 import { Trash } from "tabler-icons-react";
-import { User } from "../../utils/types";
+import { QuestionResponse, User } from "../../utils/types";
 import QuestionPopover from "../QuestionPopover";
+import ReportTimeline from "./ReportTimeline";
 
 export default function TeacherReports() {
   const [students, setStudents] = useState<User[]>([]);
@@ -41,6 +42,19 @@ export default function TeacherReports() {
     setSelected(undefined);
     setDeleteModalLoading(false);
     setDeleteModal(false);
+  };
+
+  const summarizeSessions = () => {
+    const { sessions } = selected;
+    let summary: { [term: string]: string } = {};
+    sessions.forEach((session) => {
+      session.responses.forEach((response) => {
+        summary[response.question] =
+          (summary[response.question] ? summary[response.question] + "⇛" : "") +
+          (response.attempts == -1 ? "✘" : response.attempts);
+      });
+    });
+    return summary;
   };
   return (
     <>
@@ -135,12 +149,12 @@ export default function TeacherReports() {
                   </tr>
                 </thead>
                 <tbody>
-                  {selected.responses.map((response, i) => (
+                  {Object.entries(summarizeSessions()).map((response, i) => (
                     <tr key={i}>
                       <td>
-                        <QuestionPopover questionTerm={response.question} />
+                        <QuestionPopover questionTerm={response[0]} />
                       </td>
-                      <td>{response.attempts}</td>
+                      <td>{response[1]}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -149,6 +163,18 @@ export default function TeacherReports() {
               <Text color="gray">This user has not completed any work.</Text>
             )}
           </Group>
+          {selected.sessions.length > 0 && (
+            <>
+              <Title order={3} mt="lg">
+                {selected.sessions.length +
+                  " " +
+                  (selected.sessions.length == 1 ? "Session" : "Sessions")}
+              </Title>
+              <Group position="center" mt="lg">
+                <ReportTimeline reports={selected.sessions} />
+              </Group>
+            </>
+          )}
         </Container>
       ) : (
         <Group position="center">

@@ -15,6 +15,7 @@ import {
   LoadingOverlay,
   ActionIcon,
   TextInput,
+  useMantineTheme,
 } from "@mantine/core";
 import React, { useEffect, useState } from "react";
 import { AlertCircle, Eye, EyeOff, Trash } from "tabler-icons-react";
@@ -26,6 +27,7 @@ export default function TeacherQuestions() {
   const [selected, setSelected] = useState<Question | undefined>(undefined);
   const [createLoading, setCreateLoading] = useState(false);
   const [loading, setLoading] = useState(true);
+  const theme = useMantineTheme();
   useEffect(() => {
     fetch("/api/questions/getQuestions")
       .then((res) => res.json())
@@ -98,13 +100,25 @@ export default function TeacherQuestions() {
                     <tr
                       onClick={() => setSelected(question)}
                       key={i}
-                      style={{ cursor: "pointer" }}
+                      style={{
+                        cursor: "pointer",
+                        backgroundColor: question.show
+                          ? ""
+                          : theme.colorScheme === "dark"
+                          ? theme.colors.dark[5]
+                          : theme.colors.gray[3],
+                      }}
                     >
                       <td>{question.term}</td>
                       <td>{question.hint}</td>
                       <td
                         style={{
-                          color: question.images.length == 0 ? "#E03131" : "",
+                          color:
+                            question.images.length == 0
+                              ? theme.colorScheme === "dark"
+                                ? theme.colors.red[8]
+                                : theme.colors.red[6]
+                              : "",
                         }}
                       >
                         {question.images.length == 0 ? (

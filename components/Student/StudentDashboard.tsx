@@ -44,6 +44,7 @@ export default function StudentDashboard({ student }: { student: User }) {
     correct: null,
   });
   const [loading, setLoading] = useState(true);
+  const [saveLoading, setSaveLoading] = useState(false);
   useEffect(() => {
     fetch("/api/questions/getQuestion/quiz")
       .then((res) => res.json())
@@ -77,7 +78,6 @@ export default function StudentDashboard({ student }: { student: User }) {
       return response.question === session.questionPool[0].term;
     });
     const curQuestion = session.questionPool[0];
-    console.log(correct.first);
     if (!response && curResponse.attempts == -1) {
       session.questionPool = session.questionPool.concat(
         session.questionPool[0]
@@ -93,7 +93,7 @@ export default function StudentDashboard({ student }: { student: User }) {
         {
           ...curResponse,
           attempts: curResponse.attempts == -1 ? 1 : curResponse.attempts + 1,
-          firstTry: !curResponse.firstTry && correct.first ? true : false,
+          firstTry: !curResponse.firstTry && correct.first == null && response,
         },
       ],
     };
@@ -176,6 +176,15 @@ export default function StudentDashboard({ student }: { student: User }) {
   };
 
   const saveSession = async () => {
+    if (!session.responses.length) {
+      showNotification({
+        message: "You haven't answered any questions yet!",
+        color: "red",
+        icon: <X />,
+      });
+      return;
+    }
+    setSaveLoading(true);
     await fetch("/api/students/saveSession", {
       method: "POST",
       headers: {
@@ -186,6 +195,13 @@ export default function StudentDashboard({ student }: { student: User }) {
         id: student.id,
       }),
     });
+    setSaveLoading(false);
+    showNotification({
+      message: "Session saved!",
+      color: "green",
+      icon: <Check />,
+    });
+    resetPool();
   };
   return (
     <AppShell
@@ -223,7 +239,11 @@ export default function StudentDashboard({ student }: { student: User }) {
               <Button color="red" variant="outline" onClick={resetPool}>
                 Reset
               </Button>
-              <Button variant="gradient" onClick={saveSession}>
+              <Button
+                variant="gradient"
+                onClick={saveSession}
+                loading={saveLoading}
+              >
                 Save
               </Button>
               <ToggleTheme />
