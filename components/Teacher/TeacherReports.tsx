@@ -141,7 +141,7 @@ export default function TeacherReports() {
             Report
           </Title>
           <Group position="center" mt="md">
-            {selected.responses?.length > 0 ? (
+            {selected.sessions?.length > 0 ? (
               <Table>
                 <thead>
                   <tr>

@@ -14,31 +14,35 @@ export default function Results({ session }: { session: Session }) {
         opened={opened}
         onClose={() => setOpened(false)}
       >
-        <Table>
-          <thead>
-            <tr>
-              <th>Question</th>
-              <th>Attempts for First Try</th>
-            </tr>
-          </thead>
-          <tbody>
-            {session.responses.map((question, i) => {
-              return (
-                <tr key={i}>
-                  <td>
-                    <QuestionPopover questionTerm={question.question} />
-                  </td>
-                  <td>
-                    {question.attempts == -1
-                      ? "Not Attempted"
-                      : question.attempts}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </Table>
+        {table(session)}
       </Modal>
     </>
   );
 }
+
+export const table = (session: Session) => {
+  return (
+    <Table>
+      <thead>
+        <tr>
+          <th>Question</th>
+          <th>Attempts for First Try</th>
+        </tr>
+      </thead>
+      <tbody>
+        {session.responses.map((question, i) => {
+          return (
+            <tr key={i}>
+              <td>
+                <QuestionPopover questionTerm={question.question} />
+              </td>
+              <td>
+                {question.attempts == -1 ? "Not Attempted" : question.attempts}
+              </td>
+            </tr>
+          );
+        })}
+      </tbody>
+    </Table>
+  );
+};

@@ -1,7 +1,6 @@
 export type User = {
     id: number;
     name: string;
-    responses?: QuestionResponse[] | null;
     date: string;
     sessions: ReportSession[] | null;
 }

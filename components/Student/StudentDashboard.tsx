@@ -25,6 +25,7 @@ import ToggleTheme from "../ToggleTheme";
 import ImageDisplay from "./ImageDisplay";
 import { showNotification } from "@mantine/notifications";
 import Results from "./Results";
+import CompleteModal from "./CompleteModal";
 
 export default function StudentDashboard({ student }: { student: User }) {
   const [session, setSession] = useState<Session>({
@@ -310,9 +311,11 @@ export default function StudentDashboard({ student }: { student: User }) {
                   Next <ArrowRight />
                 </Button>
               ) : (
-                <Button>
-                  Complete <ArrowRight />
-                </Button>
+                <CompleteModal
+                  save={saveSession}
+                  reset={resetPool}
+                  session={session}
+                />
               ))}
           </Group>
         </Footer>

@@ -8,11 +8,10 @@ datasource db {
 }
 
 model user {
-  id        Int     @id @default(autoincrement())
-  name      String? @unique
-  date      String?
-  responses Json?   @default("[]") @db.Json
-  sessions  Json?   @default("[]") @db.Json
+  id       Int     @id @default(autoincrement())
+  name     String? @unique
+  date     String?
+  sessions Json?   @default("[]") @db.Json
 }
 
 model quiz {
