@@ -84,19 +84,23 @@ export default function StudentDashboard({ student }: { student: User }) {
       );
     }
 
-    newSession = {
-      ...newSession,
-      responses: [
-        ...newSession.responses.filter(
-          (response: QuestionResponse) => response.question !== curQuestion.term
-        ),
-        {
-          ...curResponse,
-          attempts: curResponse.attempts == -1 ? 1 : curResponse.attempts + 1,
-          firstTry: !curResponse.firstTry && correct.first == null && response,
-        },
-      ],
-    };
+    if (!(curResponse.firstTry && response)) {
+      newSession = {
+        ...newSession,
+        responses: [
+          ...newSession.responses.filter(
+            (response: QuestionResponse) =>
+              response.question !== curQuestion.term
+          ),
+          {
+            ...curResponse,
+            attempts: curResponse.attempts == -1 ? 1 : curResponse.attempts + 1,
+            firstTry:
+              !curResponse.firstTry && correct.first == null && response,
+          },
+        ],
+      };
+    }
     setCorrect({ first: correct.first == null && response, correct: response });
     setSession(newSession);
     if (response) {
@@ -200,6 +204,14 @@ export default function StudentDashboard({ student }: { student: User }) {
       message: "Session saved!",
       color: "green",
       icon: <Check />,
+    });
+    setSession({
+      ...session,
+      responses: session.responses.map((response: QuestionResponse) => ({
+        ...response,
+        attempts: -1,
+        firstTry: false,
+      })),
     });
     resetPool();
   };

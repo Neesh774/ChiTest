@@ -46,12 +46,13 @@ export default function TeacherReports() {
 
   const summarizeSessions = () => {
     const { sessions } = selected;
-    let summary: { [term: string]: string } = {};
+    let summary: { [term: string]: number[] } = {};
     sessions.forEach((session) => {
       session.responses.forEach((response) => {
-        summary[response.question] =
-          (summary[response.question] ? summary[response.question] + "⇛" : "") +
-          (response.attempts == -1 ? "✘" : response.attempts);
+        const value = !response.firstTry ? -1 : response.attempts;
+        summary[response.question]
+          ? summary[response.question].push(value)
+          : (summary[response.question] = [value]);
       });
     });
     return summary;
@@ -154,7 +155,28 @@ export default function TeacherReports() {
                       <td>
                         <QuestionPopover questionTerm={response[0]} />
                       </td>
-                      <td>{response[1]}</td>
+                      <td>
+                        {response[1].map((value, i) => (
+                          <span key={i}>
+                            {value == -1 ? (
+                              <Text component="span" color="dimmed" size="sm">
+                                ✘
+                              </Text>
+                            ) : (
+                              <Text weight={900} component="span">
+                                {value}
+                              </Text>
+                            )}{" "}
+                            {i == response[1].length - 1 ? (
+                              ""
+                            ) : (
+                              <Text component="span" color="dimmed">
+                                ⇛{" "}
+                              </Text>
+                            )}
+                          </span>
+                        ))}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
