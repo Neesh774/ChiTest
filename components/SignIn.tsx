@@ -48,6 +48,7 @@ export default function SignIn({
     if (type === "teacher") {
       if (teacherUsername !== "mcgee1" || password !== "mcgee1") {
         setInvalid("Invalid username or password");
+        setLoading(false);
         return;
       }
       setUser("teacher");

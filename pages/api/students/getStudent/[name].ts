@@ -16,7 +16,7 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse) 
         await prisma.user.create({
             data: {
                 name: name as string,
-                responses: [],
+                sessions: [],
                 date: new Date().toISOString(),
             },
         }).then((newUser) => {
