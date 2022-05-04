@@ -24,6 +24,7 @@ import { Question, QuestionResponse, User, Session } from "../../utils/types";
 import ToggleTheme from "../ToggleTheme";
 import ImageDisplay from "./ImageDisplay";
 import { showNotification } from "@mantine/notifications";
+import Results from "./Results";
 
 export default function StudentDashboard({ student }: { student: User }) {
   const [session, setSession] = useState<Session>({
@@ -50,7 +51,8 @@ export default function StudentDashboard({ student }: { student: User }) {
         setSession({
           responses: questions.map((question: Question) => ({
             question: question.term,
-            attempts: 0,
+            attempts: -1,
+            firstTry: false,
           })),
           questionPool: randomizeQuestions(questions),
           questions: questions,
@@ -70,6 +72,12 @@ export default function StudentDashboard({ student }: { student: User }) {
   }, []);
   const checkAnswer = () => {
     const response = session.questionPool[0].term === selectedAnswer;
+    if (!response && correct.first == null) {
+      setSession({
+        ...session,
+        questionPool: session.questionPool.concat(session.questionPool[0]),
+      });
+    }
     setCorrect({ first: correct.first == null && response, correct: response });
     if (response) {
       showNotification({
@@ -118,37 +126,46 @@ export default function StudentDashboard({ student }: { student: User }) {
     }
   };
 
+  const resetPool = () => {
+    setSession({
+      ...session,
+      questionPool: randomizeQuestions(session.questions),
+      answers: session.questions.map((question: Question) => question.term),
+      responses: session.responses.map((response: QuestionResponse) => {
+        if (response.firstTry) {
+          return response;
+        }
+        return {
+          ...response,
+          attempts: -1,
+          firstTry: false,
+        };
+      }),
+    });
+    setSelectedAnswer("");
+    setCorrect({ ...correct, correct: null });
+  };
+
   const nextQuestion = () => {
     let newSession: Session;
     const curResponse = session.responses.find((response: QuestionResponse) => {
       return response.question === session.questionPool[0].term;
     });
     const curQuestion = session.questionPool[0];
-    if (correct.first) {
-      newSession = {
-        ...session,
-        responses: [
-          ...session.responses,
-          {
-            question: session.questionPool[0].term,
-            attempts: curResponse.attempts + 1,
-          },
-        ],
-        questionPool: session.questionPool.slice(1),
-      };
-    } else {
-      newSession = {
-        ...session,
-        responses: [
-          ...session.responses,
-          {
-            question: session.questionPool[0].term,
-            attempts: curResponse.attempts + 1,
-          },
-        ],
-        questionPool: session.questionPool.slice(1).concat(curQuestion),
-      };
-    }
+    newSession = {
+      ...session,
+      responses: [
+        ...session.responses.filter(
+          (response: QuestionResponse) => response.question !== curQuestion.term
+        ),
+        {
+          ...curResponse,
+          attempts: curResponse.attempts == -1 ? 1 : curResponse.attempts + 1,
+          firstTry: !curResponse.firstTry && correct.first ? true : false,
+        },
+      ],
+      questionPool: session.questionPool.slice(1),
+    };
     setCorrect({ first: null, correct: null });
     setSelectedAnswer("");
     setSession(newSession);
@@ -185,7 +202,8 @@ export default function StudentDashboard({ student }: { student: User }) {
               </Group>
             </Group>
             <Group>
-              <Button color="red" variant="outline">
+              <Results session={session} />
+              <Button color="red" variant="outline" onClick={resetPool}>
                 Reset
               </Button>
               <Button variant="gradient">Save</Button>

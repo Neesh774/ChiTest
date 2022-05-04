@@ -16,7 +16,7 @@ import {
 import React, { useEffect, useState } from "react";
 import { Trash } from "tabler-icons-react";
 import { User } from "../../utils/types";
-import QuestionPopover from "./QuestionPopover";
+import QuestionPopover from "../QuestionPopover";
 
 export default function TeacherReports() {
   const [students, setStudents] = useState<User[]>([]);
@@ -131,7 +131,7 @@ export default function TeacherReports() {
                 <thead>
                   <tr>
                     <th>Question</th>
-                    <th>Attempts</th>
+                    <th>Attempts for First Try</th>
                   </tr>
                 </thead>
                 <tbody>

@@ -18,6 +18,7 @@ export type Question = {
 export type QuestionResponse = {
     question: string;
     attempts: number;
+    firstTry: boolean;
 }
 export type Session = {
     responses: QuestionResponse[];

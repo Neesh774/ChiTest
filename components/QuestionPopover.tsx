@@ -1,6 +1,6 @@
 import { Anchor, Divider, Group, Loader, Popover, Text } from "@mantine/core";
 import React, { useEffect, useState } from "react";
-import { Question } from "../../utils/types";
+import { Question } from "../utils/types";
 
 export default function QuestionPopover({
   questionTerm,
