@@ -1,16 +1,9 @@
-import {
-  ActionIcon,
-  AspectRatio,
-  Center,
-  Container,
-  Group,
-  Image,
-  Loader,
-  Paper,
-} from "@mantine/core";
+import { ActionIcon, Center, Group, Image, Loader } from "@mantine/core";
 import React, { useEffect } from "react";
 import { ArrowLeft, ArrowRight, ClipboardX } from "tabler-icons-react";
 import { Question, Session } from "../../utils/types";
+import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
+import { useHotkeys } from "@mantine/hooks";
 
 export default function ImageDisplay({ session }: { session: Session }) {
   const [images, setImages] = React.useState<string[]>([]);
@@ -18,6 +11,7 @@ export default function ImageDisplay({ session }: { session: Session }) {
 
   useEffect(() => {
     setImages(randomizeImages(session.questionPool[0]));
+    setCurImage(0);
   }, [session.questionPool]);
 
   const previousImage = () => {
@@ -32,18 +26,27 @@ export default function ImageDisplay({ session }: { session: Session }) {
     }
   };
 
+  useHotkeys([
+    ["ArrowRight", nextImage],
+    ["ArrowLeft", previousImage],
+  ]);
+
   return (
     <Center sx={{ display: "flex", flexDirection: "column" }}>
       {images.length > 0 ? (
-        <Image
-          sx={{ objectFit: "scale-down" }}
-          height={530}
-          alt="Question"
-          radius="md"
-          src={images[curImage]}
-          withPlaceholder
-          placeholder={<ClipboardX />}
-        />
+        <TransformWrapper>
+          <TransformComponent>
+            <Image
+              sx={{ objectFit: "scale-down" }}
+              height={530}
+              alt="Question"
+              radius="md"
+              src={images[curImage]}
+              withPlaceholder
+              placeholder={<ClipboardX />}
+            />
+          </TransformComponent>
+        </TransformWrapper>
       ) : (
         <Center>
           <Loader />

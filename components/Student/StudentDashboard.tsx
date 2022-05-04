@@ -17,15 +17,19 @@ import {
   Radio,
   RadioGroup,
   Center,
+  ActionIcon,
+  ThemeIcon,
 } from "@mantine/core";
 import React, { useEffect, useState } from "react";
-import { ArrowRight, Check, X } from "tabler-icons-react";
+import { ArrowRight, Check, Keyboard, X } from "tabler-icons-react";
 import { Question, QuestionResponse, User, Session } from "../../utils/types";
 import ToggleTheme from "../ToggleTheme";
 import ImageDisplay from "./ImageDisplay";
 import { showNotification } from "@mantine/notifications";
 import Results from "./Results";
 import CompleteModal from "./CompleteModal";
+import Shortcuts from "./Shortcuts";
+import { useHotkeys } from "@mantine/hooks";
 
 export default function StudentDashboard({ student }: { student: User }) {
   const [session, setSession] = useState<Session>({
@@ -172,6 +176,7 @@ export default function StudentDashboard({ student }: { student: User }) {
   };
 
   const nextQuestion = () => {
+    if (session.questionPool.length < 1) return;
     setCorrect({ first: null, correct: null });
     setSelectedAnswer("");
     setSession({
@@ -216,6 +221,8 @@ export default function StudentDashboard({ student }: { student: User }) {
     });
     resetPool();
   };
+
+  useHotkeys([["Enter", correct.correct ? nextQuestion : checkAnswer]]);
   return (
     <AppShell
       padding="md"
@@ -248,6 +255,7 @@ export default function StudentDashboard({ student }: { student: User }) {
               </Group>
             </Group>
             <Group>
+              <Shortcuts />
               <Results session={session} />
               <Button color="red" variant="outline" onClick={resetPool}>
                 Reset
@@ -285,6 +293,7 @@ export default function StudentDashboard({ student }: { student: User }) {
                     disabled={correct.correct == true}
                     label={term}
                     value={term}
+                    onFocus={(e) => e.target.blur()}
                   />
                 ))}
               </RadioGroup>
