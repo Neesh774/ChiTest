@@ -12,6 +12,7 @@ model user {
   name      String? @unique
   date      String?
   responses Json?   @default("[]") @db.Json
+  sessions  Json?   @default("[]") @db.Json
 }
 
 model quiz {

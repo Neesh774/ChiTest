@@ -3,6 +3,7 @@ export type User = {
     name: string;
     responses?: QuestionResponse[] | null;
     date: string;
+    sessions: Session[] | null;
 }
 
 export type Question = {

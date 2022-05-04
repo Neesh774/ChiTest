@@ -9,7 +9,7 @@ import {
   Paper,
 } from "@mantine/core";
 import React, { useEffect } from "react";
-import { ArrowLeft, ArrowRight } from "tabler-icons-react";
+import { ArrowLeft, ArrowRight, ClipboardX } from "tabler-icons-react";
 import { Question, Session } from "../../utils/types";
 
 export default function ImageDisplay({ session }: { session: Session }) {
@@ -41,6 +41,8 @@ export default function ImageDisplay({ session }: { session: Session }) {
           alt="Question"
           radius="md"
           src={images[curImage]}
+          withPlaceholder
+          placeholder={<ClipboardX />}
         />
       ) : (
         <Center>

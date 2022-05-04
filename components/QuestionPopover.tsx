@@ -36,7 +36,7 @@ export default function QuestionPopover({
       target={
         <Text
           onClick={() => setOpened(error ? false : !opened)}
-          underline={!error && !loading}
+          underline
           style={{ cursor: error ? "" : "pointer" }}
         >
           {questionTerm}
@@ -72,8 +72,34 @@ export default function QuestionPopover({
                 No Images
               </Text>
             )}
+            <Text size="md" weight="500">
+              Categories
+            </Text>
+            {question.categories.length > 0 ? (
+              <Group direction="column" spacing={0}>
+                {question.categories.map((category, i) => {
+                  return (
+                    <Text key={i}>
+                      {category}
+                      {i !== question.categories.length - 1 && ", "}
+                    </Text>
+                  );
+                })}
+              </Group>
+            ) : (
+              <Text color="gray" size="sm">
+                No Categories
+              </Text>
+            )}
           </>
         ))}
+      {error && (
+        <Group position="center" grow>
+          <Text color="red" size="md">
+            Error loading question.
+          </Text>
+        </Group>
+      )}
     </Popover>
   );
 }

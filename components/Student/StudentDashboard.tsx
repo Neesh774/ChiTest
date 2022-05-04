@@ -71,14 +71,34 @@ export default function StudentDashboard({ student }: { student: User }) {
     }
   }, []);
   const checkAnswer = () => {
+    let newSession: Session = session;
     const response = session.questionPool[0].term === selectedAnswer;
-    if (!response && correct.first == null) {
-      setSession({
-        ...session,
-        questionPool: session.questionPool.concat(session.questionPool[0]),
-      });
+    const curResponse = session.responses.find((response: QuestionResponse) => {
+      return response.question === session.questionPool[0].term;
+    });
+    const curQuestion = session.questionPool[0];
+    console.log(correct.first);
+    if (!response && curResponse.attempts == -1) {
+      session.questionPool = session.questionPool.concat(
+        session.questionPool[0]
+      );
     }
+
+    newSession = {
+      ...newSession,
+      responses: [
+        ...newSession.responses.filter(
+          (response: QuestionResponse) => response.question !== curQuestion.term
+        ),
+        {
+          ...curResponse,
+          attempts: curResponse.attempts == -1 ? 1 : curResponse.attempts + 1,
+          firstTry: !curResponse.firstTry && correct.first ? true : false,
+        },
+      ],
+    };
     setCorrect({ first: correct.first == null && response, correct: response });
+    setSession(newSession);
     if (response) {
       showNotification({
         message: "You got it right, great work!",
@@ -147,28 +167,25 @@ export default function StudentDashboard({ student }: { student: User }) {
   };
 
   const nextQuestion = () => {
-    let newSession: Session;
-    const curResponse = session.responses.find((response: QuestionResponse) => {
-      return response.question === session.questionPool[0].term;
-    });
-    const curQuestion = session.questionPool[0];
-    newSession = {
-      ...session,
-      responses: [
-        ...session.responses.filter(
-          (response: QuestionResponse) => response.question !== curQuestion.term
-        ),
-        {
-          ...curResponse,
-          attempts: curResponse.attempts == -1 ? 1 : curResponse.attempts + 1,
-          firstTry: !curResponse.firstTry && correct.first ? true : false,
-        },
-      ],
-      questionPool: session.questionPool.slice(1),
-    };
     setCorrect({ first: null, correct: null });
     setSelectedAnswer("");
-    setSession(newSession);
+    setSession({
+      ...session,
+      questionPool: session.questionPool.slice(1),
+    });
+  };
+
+  const saveSession = async () => {
+    await fetch("/api/students/saveSession", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        session: session.responses,
+        id: student.id,
+      }),
+    });
   };
   return (
     <AppShell
@@ -206,7 +223,9 @@ export default function StudentDashboard({ student }: { student: User }) {
               <Button color="red" variant="outline" onClick={resetPool}>
                 Reset
               </Button>
-              <Button variant="gradient">Save</Button>
+              <Button variant="gradient" onClick={saveSession}>
+                Save
+              </Button>
               <ToggleTheme />
             </Group>
           </div>
