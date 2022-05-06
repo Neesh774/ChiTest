@@ -1,7 +1,8 @@
 import { Button, Group, Modal, Title, Text } from "@mantine/core";
 import React, { useState } from "react";
-import { ArrowRight } from "tabler-icons-react";
+import { ArrowRight, Confetti } from "tabler-icons-react";
 import { Session } from "../../utils/types";
+import { useReward } from "react-rewards";
 import { table } from "./Results";
 
 export default function CompleteModal({
@@ -15,9 +16,18 @@ export default function CompleteModal({
 }) {
   const [opened, setOpened] = useState(false);
   const numCompleted = session.responses.filter((r) => r.attempts != -1).length;
+  const { reward } = useReward("completeModal", "balloons", {
+    zIndex: 100,
+  });
   return (
     <>
-      <Button onClick={() => setOpened(true)}>
+      <Button
+        id="completeModal"
+        onClick={() => {
+          setOpened(true);
+          reward();
+        }}
+      >
         Complete <ArrowRight />
       </Button>
       <Modal

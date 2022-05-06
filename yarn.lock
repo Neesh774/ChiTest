@@ -1993,6 +1993,11 @@ react-property@2.0.0:
   resolved "https://registry.yarnpkg.com/react-property/-/react-property-2.0.0.tgz#2156ba9d85fa4741faf1918b38efc1eae3c6a136"
   integrity sha512-kzmNjIgU32mO4mmH5+iUyrqlpFQhF8K2k7eZ4fdLSOPFrD1XgEuSBv9LDEgxRXTMBqMd8ppT0x6TIzqE5pdGdw==
 
+react-rewards@^2.0.3:
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/react-rewards/-/react-rewards-2.0.3.tgz#685aee98654ab4f060e297849f39cf0a16cec042"
+  integrity sha512-qww5Jtk2HmCjR9wc7+0c2iP8oCQzENZn8pnoJGi0S6o+6dAD25+ZoagLSWdoBLGVwxfP5kFBjv3VZ6L8fPk6lg==
+
 react-textarea-autosize@^8.3.2:
   version "8.3.3"
   resolved "https://registry.yarnpkg.com/react-textarea-autosize/-/react-textarea-autosize-8.3.3.tgz#f70913945369da453fd554c168f6baacd1fa04d8"

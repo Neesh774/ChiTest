@@ -31,6 +31,7 @@ import CompleteModal from "./CompleteModal";
 import Shortcuts from "./Shortcuts";
 import { useHotkeys } from "@mantine/hooks";
 import Reset from "./Reset";
+import { useReward } from "react-rewards";
 
 export default function StudentDashboard({
   student,
@@ -57,6 +58,11 @@ export default function StudentDashboard({
   });
   const [loading, setLoading] = useState(true);
   const [saveLoading, setSaveLoading] = useState(false);
+  const { reward } = useReward("correct", "confetti", {
+    angle: 150,
+    zIndex: 1000,
+    startVelocity: 20,
+  });
   useEffect(() => {
     let unsaved: RestoredSession;
     if (window) {
@@ -78,7 +84,9 @@ export default function StudentDashboard({
           questions: questions,
           categories,
           focus: unsaved ? unsaved.focus : "",
-          answers: questions.map((question: Question) => question.term),
+          answers: (unsaved ? unsaved.pool : questions).map(
+            (question: Question) => question.term
+          ),
         };
         setSession(updatedSession);
         setLoading(false);
@@ -145,6 +153,7 @@ export default function StudentDashboard({
         color: "green",
         icon: <Check />,
       });
+      reward();
     } else {
       showNotification({
         message: (
@@ -190,6 +199,7 @@ export default function StudentDashboard({
     setSession({
       ...session,
       questionPool: randomizeQuestions(session.questions),
+      focus: "",
       answers: session.questions.map((question: Question) => question.term),
       responses: session.responses.map((response: QuestionResponse) => {
         if (response.firstTry) {
@@ -253,18 +263,15 @@ export default function StudentDashboard({
     resetPool();
   };
 
-  useHotkeys([
-    [
-      "Enter",
-      correct.correct
-        ? session.questionPool.length > 1
-          ? nextQuestion
-          : () => {
-              return null;
-            }
-        : checkAnswer,
-    ],
-  ]);
+  const pressEnter = () => {
+    if (correct.correct == null && selectedAnswer) {
+      checkAnswer();
+    }
+    if (correct.correct && session.questionPool.length > 1) {
+      nextQuestion();
+    }
+  };
+  useHotkeys([["Enter", pressEnter]]);
   return (
     <AppShell
       padding="md"
@@ -391,6 +398,7 @@ export default function StudentDashboard({
       ) : (
         <ImageDisplay session={session} />
       )}
+      <div id="correct" style={{ position: "fixed", bottom: 100, right: 80 }} />
     </AppShell>
   );
 }
