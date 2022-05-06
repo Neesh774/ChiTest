@@ -45,7 +45,9 @@ export default function QuestionPopover({
     >
       {!error &&
         (loading ? (
-          <Loader />
+          <Group position="center">
+            <Loader />
+          </Group>
         ) : (
           <>
             <Text size="lg">{question.term}</Text>

@@ -1,28 +1,28 @@
 import {
   AppShell,
-  Burger,
   Button,
   Group,
   Header,
-  MediaQuery,
   Title,
   Text,
   Aside,
   ScrollArea,
-  UnstyledButton,
   Loader,
   Footer,
-  MultiSelect,
   Select,
   Radio,
   RadioGroup,
   Center,
-  ActionIcon,
-  ThemeIcon,
 } from "@mantine/core";
 import React, { useEffect, useState } from "react";
 import { ArrowRight, Check, Keyboard, X } from "tabler-icons-react";
-import { Question, QuestionResponse, User, Session } from "../../utils/types";
+import {
+  Question,
+  QuestionResponse,
+  User,
+  Session,
+  RestoredSession,
+} from "../../utils/types";
 import ToggleTheme from "../ToggleTheme";
 import ImageDisplay from "./ImageDisplay";
 import { showNotification } from "@mantine/notifications";
@@ -30,8 +30,15 @@ import Results from "./Results";
 import CompleteModal from "./CompleteModal";
 import Shortcuts from "./Shortcuts";
 import { useHotkeys } from "@mantine/hooks";
+import Reset from "./Reset";
 
-export default function StudentDashboard({ student }: { student: User }) {
+export default function StudentDashboard({
+  student,
+  logOut,
+}: {
+  student: User;
+  logOut: () => void;
+}) {
   const [session, setSession] = useState<Session>({
     responses: [],
     questionPool: [],
@@ -51,21 +58,29 @@ export default function StudentDashboard({ student }: { student: User }) {
   const [loading, setLoading] = useState(true);
   const [saveLoading, setSaveLoading] = useState(false);
   useEffect(() => {
+    let unsaved: RestoredSession;
+    if (window) {
+      unsaved = JSON.parse(window.localStorage.getItem("unsaved"));
+    }
+    let updatedSession: Session;
     fetch("/api/questions/getQuestion/quiz")
       .then((res) => res.json())
       .then(({ questions, categories }) => {
-        setSession({
-          responses: questions.map((question: Question) => ({
-            question: question.term,
-            attempts: -1,
-            firstTry: false,
-          })),
-          questionPool: randomizeQuestions(questions),
+        updatedSession = {
+          responses: unsaved
+            ? unsaved.responses
+            : questions.map((question: Question) => ({
+                question: question.term,
+                attempts: -1,
+                firstTry: false,
+              })),
+          questionPool: unsaved ? unsaved.pool : randomizeQuestions(questions),
           questions: questions,
           categories,
-          focus: "",
+          focus: unsaved ? unsaved.focus : "",
           answers: questions.map((question: Question) => question.term),
-        });
+        };
+        setSession(updatedSession);
         setLoading(false);
       });
     if (window) {
@@ -76,6 +91,22 @@ export default function StudentDashboard({ student }: { student: User }) {
       };
     }
   }, []);
+
+  useEffect(() => {
+    if (
+      window &&
+      !session.responses.every((response) => response.attempts > 0)
+    ) {
+      window.localStorage.setItem(
+        "unsaved",
+        JSON.stringify({
+          responses: session.responses,
+          focus: session.focus,
+          pool: session.questionPool,
+        })
+      );
+    }
+  }, [session]);
   const checkAnswer = () => {
     let newSession: Session = session;
     const response = session.questionPool[0].term === selectedAnswer;
@@ -83,7 +114,7 @@ export default function StudentDashboard({ student }: { student: User }) {
       return response.question === session.questionPool[0].term;
     });
     const curQuestion = session.questionPool[0];
-    if (!response && curResponse.attempts == -1) {
+    if (!response && correct.first == null) {
       session.questionPool = session.questionPool.concat(
         session.questionPool[0]
       );
@@ -222,7 +253,18 @@ export default function StudentDashboard({ student }: { student: User }) {
     resetPool();
   };
 
-  useHotkeys([["Enter", correct.correct ? nextQuestion : checkAnswer]]);
+  useHotkeys([
+    [
+      "Enter",
+      correct.correct
+        ? session.questionPool.length > 1
+          ? nextQuestion
+          : () => {
+              return null;
+            }
+        : checkAnswer,
+    ],
+  ]);
   return (
     <AppShell
       padding="md"
@@ -241,7 +283,21 @@ export default function StudentDashboard({ student }: { student: User }) {
               <Group direction="column" spacing={0} py="md">
                 <Title order={2}>ChiTest</Title>
                 <Text size="sm" color="gray">
-                  Logged in as: {student.name}
+                  Logged in as:{" "}
+                  <Text
+                    component="span"
+                    size="sm"
+                    onClick={logOut}
+                    sx={(theme) => ({
+                      cursor: "pointer",
+                      "&:hover": {
+                        color: theme.colors.red[7],
+                      },
+                    })}
+                    underline
+                  >
+                    {student.name}
+                  </Text>
                 </Text>
               </Group>
               <Group>
@@ -257,9 +313,7 @@ export default function StudentDashboard({ student }: { student: User }) {
             <Group>
               <Shortcuts />
               <Results session={session} />
-              <Button color="red" variant="outline" onClick={resetPool}>
-                Reset
-              </Button>
+              <Reset resetPool={resetPool} />
               <Button
                 variant="gradient"
                 onClick={saveSession}
@@ -315,16 +369,16 @@ export default function StudentDashboard({ student }: { student: User }) {
               </Button>
             )}
             {correct.correct != null &&
-              (session.questionPool.length > 1 ? (
-                <Button onClick={nextQuestion}>
-                  Next <ArrowRight />
-                </Button>
-              ) : (
+              (session.questionPool.length == 1 && correct.first ? (
                 <CompleteModal
                   save={saveSession}
                   reset={resetPool}
                   session={session}
                 />
+              ) : (
+                <Button onClick={nextQuestion}>
+                  Next <ArrowRight />
+                </Button>
               ))}
           </Group>
         </Footer>

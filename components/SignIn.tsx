@@ -8,7 +8,8 @@ import {
   TextInput,
   Title,
 } from "@mantine/core";
-import { useState } from "react";
+import { useHotkeys } from "@mantine/hooks";
+import { useState, useEffect } from "react";
 import { User } from "../utils/types";
 
 export default function SignIn({
@@ -16,11 +17,13 @@ export default function SignIn({
   setOpened,
   setUser,
   loggedIn,
+  setNewUser,
 }: {
   opened: boolean;
   setOpened: (value: boolean) => void;
   setUser: (value: User | "teacher") => void;
   loggedIn: boolean;
+  setNewUser: (value: boolean) => void;
 }) {
   const [username, setUsername] = useState("");
   const [teacherUsername, setTeacherUsername] = useState("");
@@ -43,6 +46,27 @@ export default function SignIn({
     nextStep();
   };
 
+  useEffect(() => {
+    if (window && !loggedIn) {
+      const user = window.localStorage.getItem("user");
+      if (user) {
+        setLoading(true);
+        fetch("/api/students/getStudent/" + user)
+          .then((res) => res.json())
+          .then((data) => {
+            setUser(data.user as User);
+            setOpened(false);
+            setLoading(false);
+            if (data.newUser) setNewUser(true);
+          })
+          .catch((err) => {
+            setLoading(false);
+            console.error(err);
+          });
+      }
+    }
+  }, [setUser, loggedIn, setOpened, setNewUser]);
+
   const handleSubmit = async () => {
     setLoading(true);
     if (type === "teacher") {
@@ -61,13 +85,19 @@ export default function SignIn({
       const user = await fetch("/api/students/getStudent/" + username)
         .then((res) => res.json())
         .then((data) => {
-          return data as User;
+          if (data.newUser) setNewUser(true);
+          return data.user as User;
         });
       setUser(user);
+      if (window) {
+        window.localStorage.setItem("user", username);
+      }
     }
     setLoading(false);
     setOpened(false);
   };
+
+  useHotkeys([["Enter", handleSubmit]]);
 
   return (
     <Modal

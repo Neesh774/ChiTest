@@ -122,6 +122,7 @@ export default function EditQuestion({
         <LoadingOverlay visible={loading} />
         <Group position="apart" mt="md" align="center">
           <TextInput
+            disabled={!show}
             label="Term"
             value={term}
             onChange={(e) => setTerm(e.target.value)}
@@ -132,17 +133,14 @@ export default function EditQuestion({
         </Group>
         <Group mt="md" direction="column" grow>
           <TextInput
+            disabled={!show}
             label="Hint"
             value={hint}
             onChange={(e) => setHint(e.target.value)}
           />
-          <Switch
-            label="Show Question"
-            checked={show}
-            onChange={(e) => setShow(e.currentTarget.checked)}
-          />
-          <EditImages images={images} setImages={setImages} />
+          <EditImages show={show} images={images} setImages={setImages} />
           <MultiSelect
+            disabled={!show}
             label="Categories"
             data={categories}
             placeholder="Set question categories"
@@ -158,7 +156,12 @@ export default function EditQuestion({
             value={selectedCategories}
           />
         </Group>
-        <Group my="lg" position="right">
+        <Group my="lg" position="apart">
+          <Switch
+            label="Show Question"
+            checked={show}
+            onChange={(e) => setShow(e.currentTarget.checked)}
+          />
           <Button onClick={saveQuestion}>Save</Button>
         </Group>
         {error && (

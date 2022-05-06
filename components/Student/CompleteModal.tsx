@@ -31,8 +31,16 @@ export default function CompleteModal({
         </Text>
         {table(session)}
         <Group position="center" mt="xl">
-          <Button onClick={reset}>Reset</Button>
-          <Button onClick={save}>Save</Button>
+          <Button variant="outline" color="red" onClick={reset}>
+            Reset
+          </Button>
+          <Button
+            variant="gradient"
+            gradient={{ from: "orange", to: "yellow" }}
+            onClick={save}
+          >
+            Save
+          </Button>
         </Group>
       </Modal>
     </>

@@ -20,6 +20,7 @@ export default function Shortcuts() {
         opened={opened}
         onClose={() => setOpened(false)}
         position="bottom"
+        transition="pop-top-left"
       >
         <Group direction="column">
           <Group>

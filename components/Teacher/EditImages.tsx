@@ -8,35 +8,50 @@ import {
   Text,
   Popover,
   Image,
+  ScrollArea,
+  Stack,
 } from "@mantine/core";
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { X } from "tabler-icons-react";
 
 export default function EditImages({
   images,
   setImages,
+  show,
 }: {
   images: string[];
   setImages: (images: string[]) => void;
+  show: boolean;
 }) {
+  const viewport = useRef<HTMLDivElement>();
   if (!images) return null;
+
+  const newImage = () => {
+    setImages([...images, ""]);
+    viewport.current.scrollTo({
+      top: viewport.current.scrollHeight,
+      behavior: "smooth",
+    });
+  };
   return (
     <Group direction="column" spacing="md" grow>
       <Title order={5}>Images</Title>
-      {images.map((image, index) => (
-        <ImageEditor
-          src={image}
-          index={index}
-          setImages={setImages}
-          images={images}
-          key={index}
-        />
-      ))}
-      <Button
-        size="xs"
-        onClick={() => setImages([...images, ""])}
-        variant="outline"
-      >
+
+      <Stack>
+        <ScrollArea style={{ height: 150 }} viewportRef={viewport}>
+          {images.map((image, index) => (
+            <ImageEditor
+              src={image}
+              index={index}
+              setImages={setImages}
+              images={images}
+              key={index}
+              show={show}
+            />
+          ))}{" "}
+        </ScrollArea>
+      </Stack>
+      <Button size="xs" onClick={newImage} variant="outline" disabled={!show}>
         Add Image
       </Button>
     </Group>
@@ -48,17 +63,19 @@ function ImageEditor({
   index,
   setImages,
   images,
+  show,
 }: {
   src: string;
   index: number;
   setImages: (images: string[]) => void;
   images: string[];
+  show: boolean;
 }) {
   const [opened, setOpened] = useState(false);
   return (
-    <Grid>
+    <Group direction="row" my="sm">
       <Popover
-        opened={opened}
+        opened={opened && isValidHttpUrl(src)}
         position="left"
         placement="start"
         withArrow
@@ -67,41 +84,36 @@ function ImageEditor({
         transition="pop-top-left"
         onFocusCapture={() => setOpened(true)}
         onBlurCapture={() => setOpened(false)}
-        target={<div />}
+        target={<div style={{ display: "none" }} />}
       >
-        {isValidHttpUrl(src) ? (
-          <Image
-            src={src}
-            alt="Preview"
-            sx={{ objectFit: "scale-down" }}
-            height={250}
-          />
-        ) : (
-          <Text>This is not a valid URL. Please enter a valid URL.</Text>
-        )}
-      </Popover>
-      <Grid.Col span={11}>
-        <TextInput
-          type="url"
-          value={src}
-          onChange={(e) =>
-            setImages(
-              images.map((img, i) => (i === index ? e.target.value : img))
-            )
-          }
-          onFocusCapture={() => setOpened(true)}
-          onBlurCapture={() => setOpened(false)}
+        <Image
+          src={src}
+          alt="Preview"
+          sx={{ objectFit: "scale-down" }}
+          height={250}
         />
-      </Grid.Col>
-      <Grid.Col span={1}>
-        <ActionIcon
-          onClick={() => setImages(images.filter((_, i) => i !== index))}
-          color="red"
-        >
-          <X />
-        </ActionIcon>
-      </Grid.Col>
-    </Grid>
+      </Popover>
+      <TextInput
+        type="url"
+        value={src}
+        disabled={!show}
+        onChange={(e) =>
+          setImages(
+            images.map((img, i) => (i === index ? e.target.value : img))
+          )
+        }
+        onFocusCapture={() => setOpened(true)}
+        onBlurCapture={() => setOpened(false)}
+        style={{ width: "80%" }}
+      />
+      <ActionIcon
+        onClick={() => setImages(images.filter((_, i) => i !== index))}
+        color="red"
+        disabled={!show}
+      >
+        <X />
+      </ActionIcon>
+    </Group>
   );
 }
 

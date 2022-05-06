@@ -8,7 +8,9 @@ export default function Results({ session }: { session: Session }) {
 
   return (
     <>
-      <Button onClick={() => setOpened(true)}>View Results</Button>
+      <Button onClick={() => setOpened(true)} variant="light">
+        View Results
+      </Button>
       <Modal
         title={<Title order={4}>Results</Title>}
         opened={opened}

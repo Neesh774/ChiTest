@@ -7,12 +7,14 @@ const prisma = new PrismaClient();
 export default async function handle(req: NextApiRequest, res: NextApiResponse) {
     const { name } = req.query;
     let user: user;
+    let newUser = false;
     await prisma.user.findFirst({
         where: { name: name as string },
     }).then((newUser) => {
         user = newUser;
     });
     if (!user) {
+        newUser = true;
         await prisma.user.create({
             data: {
                 name: name as string,
@@ -23,6 +25,8 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse) 
             user = newUser;
         });
     }
-    res.status(200).json(user as User);
-
+    res.status(200).json({
+        user: user,
+        newUser: newUser,
+    });
 }

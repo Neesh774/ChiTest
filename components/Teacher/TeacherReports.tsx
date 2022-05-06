@@ -8,6 +8,7 @@ import {
   Loader,
   MediaQuery,
   Modal,
+  ScrollArea,
   Table,
   Text,
   Title,
@@ -83,49 +84,51 @@ export default function TeacherReports() {
       </Modal>
       <MediaQuery smallerThan="sm" styles={{ display: "none" }}>
         <Aside p="md" hiddenBreakpoint="sm" width={{ sm: 200, lg: 200 }}>
-          <Title order={3} mb="md">
-            Students
-          </Title>
-          {!loading && students ? (
-            students.map((student, i) => (
-              <UnstyledButton
-                key={i}
-                sx={(theme) => ({
-                  display: "block",
-                  width: "100%",
-                  padding: theme.spacing.xs,
-                  fontWeight: selected === student ? "500" : "normal",
-                  borderRight:
-                    selected === student
-                      ? `2px solid ${theme.colors.blue[5]}`
-                      : `1px solid ${theme.colors.gray[5]}`,
-                  borderTopLeftRadius: "4px",
-                  borderBottomLeftRadius: "4px",
-                  color:
-                    selected === student
-                      ? theme.colorScheme === "dark"
-                        ? theme.colors.blue[0]
-                        : theme.colors.blue[5]
-                      : theme.colorScheme === "dark"
-                      ? theme.colors.dark[2]
-                      : theme.colors.black,
-                  backgroundColor:
-                    selected === student
-                      ? theme.colorScheme === "dark"
-                        ? theme.colors.blue[4] + "60"
-                        : theme.colors.blue[0]
-                      : "transparent",
-                })}
-                onClick={() => setSelected(student)}
-              >
-                <Text>{student.name}</Text>
-              </UnstyledButton>
-            ))
-          ) : (
-            <Group position="center">
-              <Loader />
-            </Group>
-          )}
+          <Aside.Section grow component={ScrollArea}>
+            <Title order={3} mb="md">
+              Students
+            </Title>
+            {!loading && students ? (
+              students.map((student, i) => (
+                <UnstyledButton
+                  key={i}
+                  sx={(theme) => ({
+                    display: "block",
+                    width: "100%",
+                    padding: theme.spacing.xs,
+                    fontWeight: selected === student ? "500" : "normal",
+                    borderRight:
+                      selected === student
+                        ? `2px solid ${theme.colors.blue[5]}`
+                        : `1px solid ${theme.colors.gray[5]}`,
+                    borderTopLeftRadius: "4px",
+                    borderBottomLeftRadius: "4px",
+                    color:
+                      selected === student
+                        ? theme.colorScheme === "dark"
+                          ? theme.colors.blue[0]
+                          : theme.colors.blue[5]
+                        : theme.colorScheme === "dark"
+                        ? theme.colors.dark[2]
+                        : theme.colors.black,
+                    backgroundColor:
+                      selected === student
+                        ? theme.colorScheme === "dark"
+                          ? theme.colors.blue[4] + "60"
+                          : theme.colors.blue[0]
+                        : "transparent",
+                  })}
+                  onClick={() => setSelected(student)}
+                >
+                  <Text>{student.name}</Text>
+                </UnstyledButton>
+              ))
+            ) : (
+              <Group position="center">
+                <Loader />
+              </Group>
+            )}
+          </Aside.Section>
         </Aside>
       </MediaQuery>
       {selected ? (

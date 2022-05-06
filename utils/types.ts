@@ -33,3 +33,9 @@ export type Session = {
     focus: string
     answers: string[]
 };
+
+export type RestoredSession = {
+    responses: QuestionResponse[];
+    pool: Question[];
+    focus: string;
+}
