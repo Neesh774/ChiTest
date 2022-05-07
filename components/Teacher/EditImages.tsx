@@ -35,7 +35,9 @@ export default function EditImages({
   };
   return (
     <Group direction="column" spacing="md" grow>
-      <Title order={5}>Images</Title>
+      <Text weight={500} size="sm">
+        Images
+      </Text>
 
       <Stack>
         <ScrollArea style={{ height: 150 }} viewportRef={viewport}>

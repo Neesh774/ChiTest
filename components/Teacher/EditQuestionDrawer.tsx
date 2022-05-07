@@ -13,10 +13,11 @@ import {
   Text,
   MultiSelect,
 } from "@mantine/core";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { AlertCircle, Trash } from "tabler-icons-react";
 import { Question } from "../../utils/types";
 import EditImages from "./EditImages";
+import Recorder from "./Recorder";
 
 export default function EditQuestion({
   selected,
@@ -27,17 +28,18 @@ export default function EditQuestion({
   setSelected: (question: Question) => void;
   setTableLoading: (loading: boolean) => void;
 }) {
-  const [loading, setLoading] = React.useState(false);
-  const [term, setTerm] = React.useState(selected?.term);
-  const [hint, setHint] = React.useState(selected?.hint);
-  const [show, setShow] = React.useState(selected?.show);
-  const [images, setImages] = React.useState(selected?.images);
-  const [selectedCategories, setSelectedCategories] = React.useState<string[]>(
+  const [loading, setLoading] = useState(false);
+  const [term, setTerm] = useState(selected?.term);
+  const [hint, setHint] = useState(selected?.hint);
+  const [show, setShow] = useState(selected?.show);
+  const [images, setImages] = useState(selected?.images);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(
     selected?.categories
   );
-  const [categories, setCategories] = React.useState([]);
-  const [error, setError] = React.useState("");
-  const [deleteModal, setDeleteModal] = React.useState(false);
+  const [sound, setSound] = useState(selected?.sound);
+  const [categories, setCategories] = useState([]);
+  const [error, setError] = useState("");
+  const [deleteModal, setDeleteModal] = useState(false);
 
   useEffect(() => {
     fetch("/api/questions/getCategories")
@@ -80,6 +82,7 @@ export default function EditQuestion({
         images,
         show,
         categories: selectedCategories,
+        sound,
       }),
     }).then((res) => {
       if (res.status === 200) {
@@ -155,6 +158,7 @@ export default function EditQuestion({
             }}
             value={selectedCategories}
           />
+          <Recorder sound={sound} setSound={setSound} name={term} />
         </Group>
         <Group my="lg" position="apart">
           <Switch

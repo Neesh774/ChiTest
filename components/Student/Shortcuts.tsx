@@ -1,4 +1,4 @@
-import { ActionIcon, Kbd, Menu, Text, Group, Popover } from "@mantine/core";
+import { ActionIcon, Kbd, Text, Group, Popover, Title } from "@mantine/core";
 import React, { useState } from "react";
 import { Keyboard, Mouse } from "tabler-icons-react";
 
@@ -23,12 +23,13 @@ export default function Shortcuts() {
         transition="pop-top-left"
       >
         <Group direction="column">
+          <Title order={4}>Shortcuts</Title>
           <Group>
-            <Kbd>&gt;</Kbd>
-            <Text>Next Image</Text>
+            <Kbd>Right</Kbd>
+            <Text size="sm">Next Image</Text>
           </Group>
           <Group>
-            <Kbd>&lt;</Kbd>
+            <Kbd>Left</Kbd>
             <Text>Previous Image</Text>
           </Group>
           <Group>

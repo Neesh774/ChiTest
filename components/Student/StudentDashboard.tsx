@@ -261,6 +261,9 @@ export default function StudentDashboard({
       })),
     });
     resetPool();
+    if (window) {
+      window.localStorage.removeItem("unsaved");
+    }
   };
 
   const pressEnter = () => {

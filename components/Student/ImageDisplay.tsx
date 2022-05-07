@@ -34,7 +34,7 @@ export default function ImageDisplay({ session }: { session: Session }) {
   return (
     <Center sx={{ display: "flex", flexDirection: "column" }}>
       {images.length > 0 ? (
-        <TransformWrapper>
+        <TransformWrapper wheel={{ step: 0.05 }}>
           <TransformComponent>
             <Image
               sx={{ objectFit: "scale-down" }}

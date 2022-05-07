@@ -6,7 +6,7 @@ const prisma = new PrismaClient();
 
 export default async function handle(req: NextApiRequest, res: NextApiResponse) {
     const { id } = req.query;
-    const { term, hint, images, show, categories } = req.body;
+    const { term, hint, images, show, categories, sound } = req.body;
     let question: Question;
     await prisma.quiz.update({
         where: {
@@ -17,7 +17,8 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse) 
             hint,
             images,
             show,
-            categories
+            categories,
+            sound
         }
     }).then(result => {
         question = result as Question;
