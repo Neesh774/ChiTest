@@ -16,9 +16,17 @@ import {
   ActionIcon,
   TextInput,
   useMantineTheme,
+  MantineTheme,
 } from "@mantine/core";
 import React, { useEffect, useState } from "react";
-import { AlertCircle, Eye, EyeOff, Trash } from "tabler-icons-react";
+import {
+  AlertCircle,
+  Eye,
+  EyeOff,
+  PlayerPlay,
+  PlayerStop,
+  Trash,
+} from "tabler-icons-react";
 import { Question } from "../../utils/types";
 import EditQuestion from "./EditQuestionDrawer";
 
@@ -58,7 +66,6 @@ export default function TeacherQuestions() {
         size="xl"
         position="right"
       >
-        {" "}
         <EditQuestion
           selected={selected}
           setSelected={setSelected}
@@ -91,68 +98,19 @@ export default function TeacherQuestions() {
                   <th>Hint</th>
                   <th>Images</th>
                   <th>Categories</th>
+                  <th>Sound</th>
                   <th>Show</th>
                 </tr>
               </thead>
               <tbody>
-                {questions.map((question, i) => {
-                  return (
-                    <tr
-                      onClick={() => setSelected(question)}
-                      key={i}
-                      style={{
-                        cursor: "pointer",
-                        backgroundColor: question.show
-                          ? ""
-                          : theme.colorScheme === "dark"
-                          ? theme.colors.dark[5]
-                          : theme.colors.gray[3],
-                      }}
-                    >
-                      <td>{question.term}</td>
-                      <td>{question.hint}</td>
-                      <td
-                        style={{
-                          color:
-                            question.images.length == 0
-                              ? theme.colorScheme === "dark"
-                                ? theme.colors.red[8]
-                                : theme.colors.red[6]
-                              : "",
-                        }}
-                      >
-                        {question.images.length == 0 ? (
-                          <Text size="sm">No Images</Text>
-                        ) : (
-                          <Text>{question.images.length}</Text>
-                        )}
-                      </td>
-                      <td>
-                        {question.categories ? (
-                          question.categories.map((category, i) => {
-                            return (
-                              <Text key={i}>
-                                {category}
-                                {i !== question.categories.length - 1 && ", "}
-                              </Text>
-                            );
-                          })
-                        ) : (
-                          <Text>No Categories</Text>
-                        )}
-                      </td>
-                      <td>
-                        <ThemeIcon
-                          style={{ backgroundColor: "transparent" }}
-                          variant="light"
-                          color="gray"
-                        >
-                          {question.show ? <Eye /> : <EyeOff />}
-                        </ThemeIcon>
-                      </td>
-                    </tr>
-                  );
-                })}
+                {questions.map((question, i) => (
+                  <TableRow
+                    question={question}
+                    key={i}
+                    setSelected={setSelected}
+                    theme={theme}
+                  />
+                ))}
               </tbody>
             </Table>
           )}
@@ -177,3 +135,82 @@ function AccordionLabel({ label, description }: AccordionLabelProps) {
     </Group>
   );
 }
+
+const TableRow = ({
+  question,
+  setSelected,
+  theme,
+}: {
+  question: Question;
+  setSelected: (q: Question) => void;
+  theme: MantineTheme;
+}) => {
+  const [hoverPlay, setHoverPlay] = useState(false);
+  return (
+    <tr
+      onClick={hoverPlay ? undefined : () => setSelected(question)}
+      style={{
+        cursor: "pointer",
+        backgroundColor: question.show
+          ? ""
+          : theme.colorScheme === "dark"
+          ? theme.colors.dark[5]
+          : theme.colors.gray[3],
+      }}
+    >
+      <td>{question.term}</td>
+      <td>{question.hint}</td>
+      <td
+        style={{
+          color:
+            question.images.length == 0
+              ? theme.colorScheme === "dark"
+                ? theme.colors.red[8]
+                : theme.colors.red[6]
+              : "",
+        }}
+      >
+        {question.images.length == 0 ? (
+          <Text size="sm">No Images</Text>
+        ) : (
+          <Text>{question.images.length}</Text>
+        )}
+      </td>
+      <td>
+        {question.categories ? (
+          question.categories.map((category, i) => {
+            return (
+              <Text key={i}>
+                {category}
+                {i !== question.categories.length - 1 && ", "}
+              </Text>
+            );
+          })
+        ) : (
+          <Text>No Categories</Text>
+        )}
+      </td>
+      <td>
+        {question.sound ? (
+          <ActionIcon
+            onMouseEnter={() => setHoverPlay(true)}
+            onMouseLeave={() => setHoverPlay(false)}
+          >
+            {/* {playing ? <PlayerStop /> : <PlayerPlay />} */}
+          </ActionIcon>
+        ) : (
+          <Text>No Sound</Text>
+        )}
+      </td>
+      <td>
+        <ThemeIcon
+          style={{ backgroundColor: "transparent" }}
+          variant="light"
+          color="gray"
+        >
+          {question.show ? <Eye /> : <EyeOff />}
+        </ThemeIcon>
+      </td>
+    </tr>
+  );
+};

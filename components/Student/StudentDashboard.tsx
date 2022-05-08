@@ -13,9 +13,18 @@ import {
   Radio,
   RadioGroup,
   Center,
+  ActionIcon,
 } from "@mantine/core";
 import React, { useEffect, useState } from "react";
-import { ArrowRight, Check, Keyboard, X } from "tabler-icons-react";
+import {
+  ArrowRight,
+  Check,
+  Keyboard,
+  Volume,
+  Volume3,
+  VolumeOff,
+  X,
+} from "tabler-icons-react";
 import {
   Question,
   QuestionResponse,
@@ -58,6 +67,8 @@ export default function StudentDashboard({
   });
   const [loading, setLoading] = useState(true);
   const [saveLoading, setSaveLoading] = useState(false);
+  const [playSound, setPlaySound] = useState(true);
+  const [playing, setPlaying] = useState<string>();
   const { reward } = useReward("correct", "confetti", {
     angle: 150,
     zIndex: 1000,
@@ -85,7 +96,10 @@ export default function StudentDashboard({
           categories,
           focus: unsaved ? unsaved.focus : "",
           answers: (unsaved ? unsaved.pool : questions).map(
-            (question: Question) => question.term
+            (question: Question) => ({
+              term: question.term,
+              sound: question.sound,
+            })
           ),
         };
         setSession(updatedSession);
@@ -115,6 +129,22 @@ export default function StudentDashboard({
       );
     }
   }, [session]);
+
+  useEffect(() => {
+    if (playing && playSound) {
+      const audio = new Audio(playing);
+      audio.play();
+      audio.addEventListener("ended", () => {
+        setPlaying(null);
+      });
+      return () => {
+        audio.pause();
+        audio.removeEventListener("ended", () => {
+          setPlaying(null);
+        });
+      };
+    }
+  }, [playing, playSound]);
   const checkAnswer = () => {
     let newSession: Session = session;
     const response = session.questionPool[0].term === selectedAnswer;
@@ -175,7 +205,10 @@ export default function StudentDashboard({
         ...session,
         focus: "",
         questionPool: randomizeQuestions(session.questions),
-        answers: session.questions.map((question: Question) => question.term),
+        answers: session.questions.map((question: Question) => ({
+          term: question.term,
+          sound: question.sound,
+        })),
       });
     } else {
       const newPool = session.questions.flatMap((question) => {
@@ -188,7 +221,10 @@ export default function StudentDashboard({
         ...session,
         focus,
         questionPool: newPool,
-        answers: newPool.map((question: Question) => question.term),
+        answers: newPool.map((question: Question) => ({
+          term: question.term,
+          sound: question.sound,
+        })),
       });
       setSelectedAnswer("");
       setCorrect({ ...correct, correct: null });
@@ -200,7 +236,10 @@ export default function StudentDashboard({
       ...session,
       questionPool: randomizeQuestions(session.questions),
       focus: "",
-      answers: session.questions.map((question: Question) => question.term),
+      answers: session.questions.map((question: Question) => ({
+        term: question.term,
+        sound: question.sound,
+      })),
       responses: session.responses.map((response: QuestionResponse) => {
         if (response.firstTry) {
           return response;
@@ -343,25 +382,39 @@ export default function StudentDashboard({
               <Loader />
             </Group>
           ) : (
-            <ScrollArea>
-              <RadioGroup
-                orientation="vertical"
-                label={<Title order={4}>Options</Title>}
-                value={selectedAnswer}
-                onChange={setSelectedAnswer}
-                size="sm"
-              >
-                {session.answers.map((term, index) => (
-                  <Radio
-                    key={index}
-                    disabled={correct.correct == true}
-                    label={term}
-                    value={term}
-                    onFocus={(e) => e.target.blur()}
-                  />
-                ))}
-              </RadioGroup>
-            </ScrollArea>
+            <>
+              <Aside.Section grow component={ScrollArea}>
+                <RadioGroup
+                  orientation="vertical"
+                  label={<Title order={4}>Options</Title>}
+                  value={selectedAnswer}
+                  onChange={setSelectedAnswer}
+                  size="sm"
+                >
+                  {session.answers.map(({ term, sound }, index) => {
+                    return (
+                      <Radio
+                        key={index}
+                        disabled={correct.correct == true}
+                        label={term}
+                        value={term}
+                        onFocus={(e) => {
+                          e.target.blur();
+                          if (playSound) {
+                            setPlaying(sound);
+                          }
+                        }}
+                      />
+                    );
+                  })}
+                </RadioGroup>
+              </Aside.Section>
+              <Aside.Section>
+                <ActionIcon onClick={() => setPlaySound(!playSound)}>
+                  {playSound ? <Volume /> : <Volume3 />}
+                </ActionIcon>
+              </Aside.Section>
+            </>
           )}
         </Aside>
       }

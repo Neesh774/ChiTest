@@ -34,16 +34,6 @@ export default function Recorder({
         title={<Title order={4}>Record &quot;{name}&quot;</Title>}
       >
         <Group position="apart">
-          <Button
-            size="xs"
-            color="red"
-            onClick={() => {
-              clearBlobUrl();
-            }}
-            variant="outline"
-          >
-            Remove Sound
-          </Button>{" "}
           <Group>
             <ActionIcon
               onClick={startRecording}
@@ -64,6 +54,20 @@ export default function Recorder({
               <PlayerStop />
             </ActionIcon>
           </Group>
+          <Button
+            size="xs"
+            color="red"
+            onClick={() => {
+              clearBlobUrl();
+            }}
+            variant="outline"
+            disabled={
+              status === "recording" ||
+              (sound === null && mediaBlobUrl === null)
+            }
+          >
+            Remove Sound
+          </Button>
         </Group>
         <Group position="center" mt="xl">
           <audio src={mediaBlobUrl} controls />
@@ -75,13 +79,19 @@ export default function Recorder({
               clearBlobUrl();
             }}
             variant="outline"
+            disabled={status == "recording"}
           >
             Cancel
           </Button>
           <Button
             onClick={() => {
-              setSound(mediaBlobUrl);
               setOpened(false);
+              const reader = new FileReader();
+              reader.readAsDataURL(new Blob([mediaBlobUrl]));
+              reader.onload = () => {
+                const result = reader.result as string;
+                setSound(result.substring(result.indexOf(",") + 1));
+              };
             }}
             disabled={status == "recording"}
           >

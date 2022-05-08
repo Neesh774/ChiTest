@@ -25,13 +25,18 @@ export type QuestionResponse = {
     attempts: number;
     firstTry: boolean;
 }
+
+export type AnswerChoice = {
+    term: string;
+    sound: string;
+}
 export type Session = {
     responses: QuestionResponse[];
     questionPool: Question[];
     questions: Question[],
     categories: string[]
     focus: string
-    answers: string[]
+    answers: AnswerChoice[]
 };
 
 export type RestoredSession = {
