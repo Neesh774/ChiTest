@@ -13,7 +13,6 @@ export default function Home() {
   const [loggedIn, setLoggedIn] = useState<User | "teacher" | undefined>(
     undefined
   );
-  const [newUser, setNewUser] = useState(false);
   const [showSignIn, setShowSignIn] = useState(false);
 
   useEffect(() => {
@@ -44,21 +43,7 @@ export default function Home() {
         setOpened={setShowSignIn}
         setUser={setLoggedIn}
         loggedIn={!!loggedIn}
-        setNewUser={setNewUser}
       />
-      <Dialog
-        withCloseButton
-        opened={newUser}
-        size="lg"
-        onClose={() => setNewUser(false)}
-      >
-        <Group direction="row">
-          <ThemeIcon color="green" variant="light" radius="xl" size="lg">
-            <Mouse />
-          </ThemeIcon>
-          <Text>Try scrolling and dragging the image!</Text>
-        </Group>
-      </Dialog>
     </>
   );
 }
