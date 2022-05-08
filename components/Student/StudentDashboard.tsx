@@ -129,6 +129,8 @@ export default function StudentDashboard({
     }
 
     if (!(curResponse.firstTry && response)) {
+      const newAttempts =
+        correct.first != null ? curResponse.attempts : curResponse.attempts + 1;
       newSession = {
         ...newSession,
         responses: [
@@ -138,7 +140,7 @@ export default function StudentDashboard({
           ),
           {
             ...curResponse,
-            attempts: curResponse.attempts == -1 ? 1 : curResponse.attempts + 1,
+            attempts: curResponse.attempts == -1 ? 1 : newAttempts,
             firstTry:
               !curResponse.firstTry && correct.first == null && response,
           },
