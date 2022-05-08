@@ -4,6 +4,7 @@ import { ArrowRight, Confetti } from "tabler-icons-react";
 import { Session } from "../../utils/types";
 import { useReward } from "react-rewards";
 import { table } from "./Results";
+import useSound from "use-sound";
 
 export default function CompleteModal({
   reset,
@@ -16,9 +17,10 @@ export default function CompleteModal({
 }) {
   const [opened, setOpened] = useState(false);
   const numCompleted = session.responses.filter((r) => r.attempts != -1).length;
-  const { reward } = useReward("completeModal", "balloons", {
-    zIndex: 100,
+  const { reward } = useReward("completeModal", "confetti", {
+    spread: 90,
   });
+  const [playSound] = useSound("/complete.mp3", { volume: 0.5 });
   return (
     <>
       <Button
@@ -26,6 +28,7 @@ export default function CompleteModal({
         onClick={() => {
           setOpened(true);
           reward();
+          playSound();
         }}
       >
         Complete <ArrowRight />

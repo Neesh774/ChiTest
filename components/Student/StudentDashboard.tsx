@@ -32,6 +32,7 @@ import Shortcuts from "./Shortcuts";
 import { useHotkeys } from "@mantine/hooks";
 import Reset from "./Reset";
 import { useReward } from "react-rewards";
+import useSound from "use-sound";
 
 export default function StudentDashboard({
   student,
@@ -62,6 +63,9 @@ export default function StudentDashboard({
     angle: 150,
     zIndex: 1000,
     startVelocity: 20,
+  });
+  const [playCorrectSound] = useSound("/question_correct.mp3", {
+    volume: 0.25,
   });
   useEffect(() => {
     let unsaved: RestoredSession;
@@ -156,6 +160,7 @@ export default function StudentDashboard({
         icon: <Check />,
       });
       reward();
+      playCorrectSound();
     } else {
       showNotification({
         message: (
