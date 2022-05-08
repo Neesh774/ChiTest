@@ -203,7 +203,7 @@ export default function TeacherReports() {
         </Container>
       ) : (
         <Group position="center">
-          <Text weight="bold" size="xl" color="gray">
+          <Text weight="bold" size="xl" color="dimmed">
             Select a student to get started.
           </Text>
         </Group>

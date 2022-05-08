@@ -9,7 +9,9 @@ import {
   Title,
 } from "@mantine/core";
 import { useHotkeys } from "@mantine/hooks";
+import { showNotification } from "@mantine/notifications";
 import { useState, useEffect } from "react";
+import { Mouse } from "tabler-icons-react";
 import { User } from "../utils/types";
 
 export default function SignIn({
@@ -17,13 +19,11 @@ export default function SignIn({
   setOpened,
   setUser,
   loggedIn,
-  setNewUser,
 }: {
   opened: boolean;
   setOpened: (value: boolean) => void;
   setUser: (value: User | "teacher") => void;
   loggedIn: boolean;
-  setNewUser: (value: boolean) => void;
 }) {
   const [username, setUsername] = useState("");
   const [teacherUsername, setTeacherUsername] = useState("");
@@ -56,8 +56,15 @@ export default function SignIn({
           .then((data) => {
             setUser(data.user as User);
             setOpened(false);
-            setLoading(false);
-            if (data.newUser) setNewUser(true);
+            if (data.newUser) {
+              showNotification({
+                title: "Welcome to ChiTest",
+                message:
+                  "Try scrolling and dragging the image to take a closer look.",
+                color: "blue",
+                icon: <Mouse />,
+              });
+            }
           })
           .catch((err) => {
             setLoading(false);
@@ -65,7 +72,7 @@ export default function SignIn({
           });
       }
     }
-  }, [setUser, loggedIn, setOpened, setNewUser]);
+  }, [setUser, loggedIn, setOpened]);
 
   const handleSubmit = async () => {
     setLoading(true);
@@ -85,7 +92,6 @@ export default function SignIn({
       const user = await fetch("/api/students/getStudent/" + username)
         .then((res) => res.json())
         .then((data) => {
-          if (data.newUser) setNewUser(true);
           return data.user as User;
         });
       setUser(user);

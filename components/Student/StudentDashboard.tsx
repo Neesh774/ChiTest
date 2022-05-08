@@ -88,7 +88,7 @@ export default function StudentDashboard({
           questions: questions,
           categories,
           focus: unsaved ? unsaved.focus : "",
-          answers: (unsaved ? unsaved.pool : questions).map(
+          answers: (unsaved && unsaved.focus ? unsaved.pool : questions).map(
             (question: Question) => question.term
           ),
         };
